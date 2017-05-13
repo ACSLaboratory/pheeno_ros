@@ -23,7 +23,7 @@ if __name__ == "__main__":
             sys.stdout.write("Creating Publisher...")
             pub = rospy.Publisher("/pi_cam/image_raw",
                                   Image,
-                                  queue_size=1)
+                                  queue_size=307200)
             sys.stdout.write("done!\n")
 
             # Other important variables
@@ -37,7 +37,7 @@ if __name__ == "__main__":
                 try:
                     camera.capture(stream, 'bgr', use_video_port=True)
                     image_message = bridge.cv2_to_imgmsg(
-                        stream.array, encoding_passthrough)
+                        stream.array)
                     pub.publish(image_message)
 
                 except KeyboardInterrupt:
