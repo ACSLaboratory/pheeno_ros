@@ -1,0 +1,68 @@
+#!/bin/bash
+
+###############################################################################
+# The following script is only for the installation of ROS Indigo with Rasbian # Jessie.
+#
+# The installation will install:
+#       ros_comm - ROS Indigo distro communication tools.
+#
+# and the following dependencies:
+#       libconsole-bridge-dev
+#       liblz4-dev
+#
+# NOTE: This is a minimal install of ROS!
+#
+###############################################################################
+
+## Setup ROS Repositories
+# Raspbian Jessie
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu jessie main" > /etc/apt/sources.list.d/ros-latest.list'
+wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | sudo apt-key add -
+
+# Update system
+sudo apt-get update
+sudo apt-get upgrade -y
+
+## Install Bootstrap Dependencies
+sudo apt-get install python-pip python-setuptools python-yaml python-distribute python-docutils python-dateutil python-six emacs -y
+sudo pip install rosdep rosinstall_generator wstool rosinstall
+
+## Initialize rosdep
+sudo rosdep init
+rosdep update
+
+## Create a catkin workspace
+mkdir ~/ros_catkin_ws
+cd ~/ros_catkin_ws
+
+# Fetch and install core packages (NO GUI)
+rosinstall_generator ros_comm --rosdistro indigo --deps --wet-only --exclude roslisp --tar > indigo-ros_comm-wet.rosinstall
+wstool init src indigo-ros_comm-wet.rosinstall
+
+## Resolve Dependencies
+# Unavailiable dependencies
+# mkdir ~/ros_catkin_ws/external_src
+mkdir ~/external_src
+sudo apt-get install checkinstall cmake -y
+sudo sh -c 'echo "deb-src http://mirrordirector.raspbian.org/raspbian/ testing main contrib non-free rpi" >> /etc/apt/sources.list'
+sudo apt-get update
+
+# Install libconsole-bridge-dev
+# cd ~/ros_catkin_ws/external_src
+cd ~/external_src
+sudo apt-get build-dep console-bridge -y
+apt-get source -b console-bridge
+sudo dpkg -i libconsole-bridge0.2*.deb libconsole-bridge-dev_*.deb
+
+# Install liblz4-dev
+apt-get source -b lz4
+sudo dpkg -i liblz4-*.deb
+
+# Resolving remaining dependencies with rosdep
+cd ~/ros_catkin_ws
+rosdep install --from-paths src --ignore-src --rosdistro indigo -y -r --os=debian:jessie
+
+# Building the catkin Workspace
+sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/indigo -j2
+
+echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc

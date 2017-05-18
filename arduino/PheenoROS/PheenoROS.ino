@@ -35,19 +35,19 @@ int angular = 0;  // Turning (Right and Left) motion.
 
 
 // Create Publishers
-ros::Publisher pub_ir_center("/scan_center");  // Center IR Sensor
-ros::Publisher pub_ir_back("/scan_back");      // Back IR Sensor
-ros::Publisher pub_ir_right("/scan_right");    // Right IR Sensor
-ros::Publisher pub_ir_left("/scan_left");      // Left IR Sensor
-ros::Publisher pub_ir_cr("/scan_cr");          // Center Right IR Sensor
-ros::Publisher pub_ir_cl("/scan_cl");          // Center Left IR Sensor
-ros::Publisher pub_encoder_LL("/encoder_LL");  // Encoder LL
-ros::Publisher pub_encoder_LR("/encoder_LR");  // Encoder LR
-ros::Publisher pub_encoder_RL("/encoder_RL");  // Encoder RL
-ros::Publisher pub_encoder_RR("/encoder_RR");  // Encoder RR
-// ros::Publisher pub_mag("/mag");                // Magnetometer
-// ros::Publisher pub_gyro("/gyro");              // Gyroscope
-// ros::Publisher pub_accel("/accel");            // Accelerometer
+ros::Publisher pub_ir_center("/scan_center", &scan_center_msg);  // Center IR
+ros::Publisher pub_ir_back("/scan_back", &scan_back_msg);        // Back IR
+ros::Publisher pub_ir_right("/scan_right", &scan_right_msg);     // Right IR
+ros::Publisher pub_ir_left("/scan_left", &scan_left_msg);        // Left IR
+ros::Publisher pub_ir_cr("/scan_cr", &scan_cr_msg);          // Center Right IR
+ros::Publisher pub_ir_cl("/scan_cl", &scan_cl_msg);          // Center Left IR
+ros::Publisher pub_encoder_LL("/encoder_LL", &scan_LL_msg);  // Encoder LL
+ros::Publisher pub_encoder_LR("/encoder_LR", &scan_LR_msg);  // Encoder LR
+ros::Publisher pub_encoder_RL("/encoder_RL", &scan_RL_msg);  // Encoder RL
+ros::Publisher pub_encoder_RR("/encoder_RR", &scan_RR_msg);  // Encoder RR
+// ros::Publisher pub_mag("/mag", &mag_msg);        // Magnetometer
+// ros::Publisher pub_gyro("/gyro", &gyro_msg);     // Gyroscope
+// ros::Publisher pub_accel("/accel", &accel_msg);  // Accelerometer
 
 
 // Callback for cmd_vel Subscriber.
@@ -56,10 +56,12 @@ ros::Publisher pub_encoder_RR("/encoder_RR");  // Encoder RR
 void callback(const geometry_msgs::Twist &msg) {
   if (msg.linear.x > 0 || msg.linear.x < 0) {
     linear = 2550 * msg.linear.x;
+    angular = 0;
 
   }
 
   if (msg.angular.z > 0 || msg.angular.z < 0) {
+    linear = 0;
     angular = 2550 * msg.angular.z;
 
   }
@@ -109,16 +111,16 @@ void loop() {
   // pheeno_robot.readAccel();
 
   // Assign sensor values to Msg variable
-  scan_center_msg = pheeno_robot.CDistance;
-  scan_back_msg = pheeno_robot.BDistance;
-  scan_right_msg = pheeno_robot.RDistance;
-  scan_left_msg = pheeno_robot.LDistance;
-  scan_cr_msg = pheeno_robot.RFDistance;
-  scan_cl_msg = pheeno_robot.LFDistance;
-  encoder_LL_msg = pheeno_robot.encoderCountLL;
-  encoder_LR_msg = pheeno_robot.encoderCountLR;
-  encoder_RL_msg = pheeno_robot.encoderCountRL;
-  encoder_RR_msg = pheeno_robot.encoderCountRR;
+  scan_center_msg.data = pheeno_robot.CDistance;
+  scan_back_msg.data = pheeno_robot.BDistance;
+  scan_right_msg.data = pheeno_robot.RDistance;
+  scan_left_msg.data = pheeno_robot.LDistance;
+  scan_cr_msg.data = pheeno_robot.RFDistance;
+  scan_cl_msg.data = pheeno_robot.LFDistance;
+  encoder_LL_msg.data = pheeno_robot.encoderCountLL;
+  encoder_LR_msg.data = pheeno_robot.encoderCountLR;
+  encoder_RL_msg.data = pheeno_robot.encoderCountRL;
+  encoder_RR_msg.data = pheeno_robot.encoderCountRR;
 
   // Publish the Topics
   pub_ir_center.publish(&scan_center_msg);
@@ -133,16 +135,16 @@ void loop() {
   pub_encoder_RR.publish(&encoder_RR_msg);
 
   if (linear != 0) {
-    if linear > 0 {
+    if (flinear > 0) {
       PheenoMoveForward(linear);
 
     } else {
-      PheenoMoveBackward(linear);
+      PheenoMoveReverse(linear);
 
     }
 
   } else if (angular != 0) {
-    if angular > 0 {
+    if (angular) > 0 {
       PheenoTurnLeft(angular);
 
     } else {
@@ -150,8 +152,8 @@ void loop() {
     }
 
   } else {
-    pheeno_robot.BrakeAll();
-    
+    pheeno_robot.brakeAll();
+
   }
 
   nh.spinOnce();
@@ -163,8 +165,8 @@ void loop() {
 // Currently the appropriate use is just by providing a speed between 0-255,
 // without any error handling. Be careful!
 void PheenoTurnLeft(int speed) {
-  my_robot.reverseRL(speed);
-  my_robot.forwardLR(speed);
+  pheeno_robot.reverseRL(speed);
+  pheeno_robot.forwardLR(speed);
 
 }
 
@@ -173,8 +175,8 @@ void PheenoTurnLeft(int speed) {
 // Currently, the appropriate use is just by providing a speed between 0-255,
 // without any error handling. Be careful!
 void PheenoTurnRight(int speed) {
-  my_robot.reverseLR(speed);
-  my_robot.forwardRL(speed);
+  pheeno_robot.reverseLR(speed);
+  pheeno_robot.forwardRL(speed);
 
 }
 
@@ -183,8 +185,8 @@ void PheenoTurnRight(int speed) {
 // Applying a specific speed value (0-255) and both motors will apply the speed
 // without error handling. Be careful!
 void PheenoMoveForward(int speed) {
-  my_robot.forwardLR(speed);
-  my_robot.forwardRL(speed);
+  pheeno_robot.forwardLR(speed);
+  pheeno_robot.forwardRL(speed);
 
 }
 
@@ -193,7 +195,7 @@ void PheenoMoveForward(int speed) {
 // Applying a specific speed value (0-255) and both motors will apply the speed
 // without error handling. Be careful!
 void PheenoMoveReverse(int speed) {
-  my_robot.reverseLR(speed);
-  my_robot.reverseRL(speed);
+  pheeno_robot.reverseLR(speed);
+  pheeno_robot.reverseRL(speed);
 
 }

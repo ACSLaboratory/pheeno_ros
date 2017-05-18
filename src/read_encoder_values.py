@@ -2,7 +2,7 @@
 
 import rospy
 import sys
-import std_msgs.msg import Int16
+from std_msgs.msg import Int16
 
 
 def print_callback(msg, encoder_location):
@@ -25,7 +25,9 @@ def print_callback(msg, encoder_location):
     """
     global encoder_values
     encoder_values[encoder_location] = msg.data
-    print("LL %s")
+    print("LL: %s\t LR: %s\t RL: %s\t RR: %s\n" %
+          (encoder_values["LL"], encoder_values["LR"],
+           encoder_values["RL"], encoder_values["RR"]))
 
 
 if __name__ == "__main__":
