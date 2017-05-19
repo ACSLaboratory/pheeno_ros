@@ -38,11 +38,11 @@ if __name__ == "__main__":
                     # Capture and publish
                     camera.capture(stream, 'bgr', use_video_port=True)
                     image_message = bridge.cv2_to_imgmsg(
-                        stream.array)
+                        stream.array, encoding="bgr8")
                     pub.publish(image_message)
 
                     # Reset stream for next capture
-                    camera.truncate(0)
+                    stream.truncate(0)
 
                 except KeyboardInterrupt:
                     sys.exit("Closing node!\n")
