@@ -2,34 +2,35 @@
 
 import rospy
 import random
-import geometry_msgs.msg import Twist
-import std_msgs.msg import Float32
+from geometry_msgs.msg import Twist
+from std_msgs.msg import Float32
 
 
 def random_turn():
     """ Random turn direction.
 
     Returns a random turn direction for the pheeno based on a uniform
-    distribution. The value is then attributed to the 'var.angular.z'
-    variable of geometry_msgs/Twist message.
+    distribution.
 
     """
-    cmd_vel_msg = Twist()
     if random.random() < 0.5:
-        cmd_vel_msg.angular.z = -0.3  # Turn right
+        turn_direction = -0.5  # Turn right
 
     else:
-        cmd_vel_msg.angular.z = 0.3  # Turn left
+        turn_direction = 0.5  # Turn left
 
-    return cmd_vel_msg
+    return turn_direction
 
 
 def obstacle_check(msg, ir_location):
     global is_obstacle_in_way
     global sensor_triggered
-    if msg.data is not 0:
+    if msg.data < 15.0:
         sensor_triggered = ir_location
-        is_obstacle_in_way = True
+        is_obstacle_in_way[ir_location] = True
+
+    else:
+        is_obstacle_in_way[ir_location] = False
 
 
 if __name__ == "__main__":
@@ -57,36 +58,43 @@ if __name__ == "__main__":
     global sensor_triggered
 
     # Other important variables
-    is_obstacle_in_way = False
+    is_obstacle_in_way = {"center": False, "cr": False, "right": False,
+                          "back": False, "left": False, "cl": False}
     sensor_triggered = 0
-    sensors = {"center": 0.3, "cr": 0.3, "right": 0.3,
-               "back": -0.3, "left": -0.3, "cl": -0.3}
+    sensors = {"center": 0.5, "cr": -0.5, "right": -0.5,
+               "back": -0.5, "left": 0.5, "cl": 0.5}
+    cmd_vel_msg = Twist()
+    obs_cmd_vel_msg = Twist()
     rate = rospy.Rate(2)
     count = 0
 
     while not rospy.is_shutdown():
-        if is_obstacle_in_way:
-            ang_vel_msg = Twist()
-            ang_vel_msg.angular.z = 0.3
-            pub.publish(ang_vel_msg)
+        if True in is_obstacle_in_way.values():
+            obs_cmd_vel_msg.linear.x = 0
+            obs_cmd_vel_msg.angular.z = sensors[sensor_triggered]
+            pub.publish(obs_cmd_vel_msg)
+
+            # Prevent a random turn into an object after trying to avoid.
+            count = 10
 
         else:
             if count is 0:
-                ang_vel_msg = random_turn()
-                pub.publish(ang_vel_msg)
-                count += 1
-
-            elif 1 <= count <= 15:
-                pub.publish(ang_vel_msg)
-                count += 1
-
-            elif 15 < count < 35:
-                cmd_vel_msg = Twist()
-                cmd_vel_msg.linear.x = 0.07
+                cmd_vel_msg.linear.x = 0
+                cmd_vel_msg.angular.z = random_turn()
                 pub.publish(cmd_vel_msg)
                 count += 1
 
-            elif count is 35:
+            elif count is 3:
+                cmd_vel_msg.linear.x = 0.07
+                cmd_vel_msg.angular.z = 0
+                pub.publish(cmd_vel_msg)
+                count += 1
+
+            elif count is 15:
                 count = 0
+
+            else:
+                pub.publish(cmd_vel_msg)
+                count += 1
 
         rate.sleep()

@@ -41,10 +41,10 @@ ros::Publisher pub_ir_right("/scan_right", &scan_right_msg);     // Right IR
 ros::Publisher pub_ir_left("/scan_left", &scan_left_msg);        // Left IR
 ros::Publisher pub_ir_cr("/scan_cr", &scan_cr_msg);          // Center Right IR
 ros::Publisher pub_ir_cl("/scan_cl", &scan_cl_msg);          // Center Left IR
-ros::Publisher pub_encoder_LL("/encoder_LL", &scan_LL_msg);  // Encoder LL
-ros::Publisher pub_encoder_LR("/encoder_LR", &scan_LR_msg);  // Encoder LR
-ros::Publisher pub_encoder_RL("/encoder_RL", &scan_RL_msg);  // Encoder RL
-ros::Publisher pub_encoder_RR("/encoder_RR", &scan_RR_msg);  // Encoder RR
+ros::Publisher pub_encoder_LL("/encoder_LL", &encoder_LL_msg);  // Encoder LL
+ros::Publisher pub_encoder_LR("/encoder_LR", &encoder_LR_msg);  // Encoder LR
+ros::Publisher pub_encoder_RL("/encoder_RL", &encoder_RL_msg);  // Encoder RL
+ros::Publisher pub_encoder_RR("/encoder_RR", &encoder_RR_msg);  // Encoder RR
 // ros::Publisher pub_mag("/mag", &mag_msg);        // Magnetometer
 // ros::Publisher pub_gyro("/gyro", &gyro_msg);     // Gyroscope
 // ros::Publisher pub_accel("/accel", &accel_msg);  // Accelerometer
@@ -135,7 +135,7 @@ void loop() {
   pub_encoder_RR.publish(&encoder_RR_msg);
 
   if (linear != 0) {
-    if (flinear > 0) {
+    if (linear > 0) {
       PheenoMoveForward(linear);
 
     } else {
@@ -144,7 +144,7 @@ void loop() {
     }
 
   } else if (angular != 0) {
-    if (angular) > 0 {
+    if (angular > 0) {
       PheenoTurnLeft(angular);
 
     } else {
@@ -157,6 +157,7 @@ void loop() {
   }
 
   nh.spinOnce();
+  delay(100);  // Required because the Teensy sends messages too fast.
 
 }
 
