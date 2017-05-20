@@ -6,7 +6,7 @@ import sys
 
 
 def get_args():
-    """ Get arguments from rosrun or individual deployment. """
+    """ Get arguments from rosrun for individual deployment. """
     parser = argparse.ArgumentParser(
         description="Sets up package within the pheeno's directory."
     )

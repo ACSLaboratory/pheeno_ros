@@ -58,11 +58,17 @@ void callback(const geometry_msgs::Twist &msg) {
     linear = 2550 * msg.linear.x;
     angular = 0;
 
+  } else if (msg.linear.x == 0) {
+    linear = 0;
+
   }
 
   if (msg.angular.z > 0 || msg.angular.z < 0) {
     linear = 0;
     angular = 2550 * msg.angular.z;
+
+  } else if (msg.linear.x == 0) {
+    angular = 0;
 
   }
 

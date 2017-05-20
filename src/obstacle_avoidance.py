@@ -2,8 +2,25 @@
 
 import rospy
 import random
+import argparse
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32
+
+
+def get_args():
+    """ Get arguments from rosrun for individual deployment. """
+    parser = argparse.ArgumentParser(
+        description="Obstacle avoidance python script."
+    )
+
+    # Required arguments
+    parser.add_argument("-n", "--number",
+                        action="namespace",
+                        required=False,
+                        help="Add a pheeno number namespace.",
+                        default="")
+
+    return parser.parse_args()
 
 
 def random_turn():
@@ -34,24 +51,38 @@ def obstacle_check(msg, ir_location):
 
 
 if __name__ == "__main__":
+    # Get arguments from argument parser.
+    input_args = get_args()
+    if input_args is "":
+        pheeno_number = ""
+
+    else:
+        pheeno_number = "/pheeno_" + str(input_args.number)
+
     # Initialize Node
     rospy.init_node("pheeno_obstacle_avoidance")
 
     # Create Publishers and Subscribers
     pub = rospy.Publisher(
-        "/cmd_vel", Twist, queue_size=100)
+        pheeno_number + "/cmd_vel", Twist, queue_size=100)
     sub_ir_center = rospy.Subscriber(
-        "/scan_center", Float32, obstacle_check, callback_args="center")
+        pheeno_number + "/scan_center", Float32, obstacle_check,
+        callback_args="center")
     sub_ir_back = rospy.Subscriber(
-        "/scan_back", Float32, obstacle_check, callback_args="back")
+        pheeno_number + "/scan_back", Float32, obstacle_check,
+        callback_args="back")
     sub_ir_right = rospy.Subscriber(
-        "/scan_right", Float32, obstacle_check, callback_args="right")
+        pheeno_number + "/scan_right", Float32, obstacle_check,
+        callback_args="right")
     sub_ir_left = rospy.Subscriber(
-        "/scan_left", Float32, obstacle_check, callback_args="left")
+        pheeno_number + "/scan_left", Float32, obstacle_check,
+        callback_args="left")
     sub_ir_cr = rospy.Subscriber(
-        "/scan_cr", Float32, obstacle_check, callback_args="cr")
+        pheeno_number + "/scan_cr", Float32, obstacle_check,
+        callback_args="cr")
     sub_ir_cl = rospy.Subscriber(
-        "/scan_cl", Float32, obstacle_check, callback_args="cl")
+        pheeno_number + "/scan_cl", Float32, obstacle_check,
+        callback_args="cl")
 
     # Global Variables
     global is_obstacle_in_way
