@@ -20,7 +20,9 @@ def get_args():
                         help="Add a pheeno number namespace.",
                         default="")
 
-    return parser.parse_args()
+    # The rationale behind rospy.myargv()[1:] is provided here:
+    # https://groups.google.com/a/rethinkrobotics.com/forum/#!topic/brr-users/ErXVWhRmtNA
+    return parser.parse_args(rospy.myargv()[1:])
 
 
 def random_turn():
@@ -31,10 +33,10 @@ def random_turn():
 
     """
     if random.random() < 0.5:
-        turn_direction = -0.5  # Turn right
+        turn_direction = -0.05  # Turn right
 
     else:
-        turn_direction = 0.5  # Turn left
+        turn_direction = 0.05  # Turn left
 
     return turn_direction
 
@@ -42,7 +44,8 @@ def random_turn():
 def obstacle_check(msg, ir_location):
     global is_obstacle_in_way
     global sensor_triggered
-    if msg.data < 15.0:
+    global sensor_limits
+    if msg.data < sensor_limits[ir_location]:
         sensor_triggered = ir_location
         is_obstacle_in_way[ir_location] = True
 
@@ -87,13 +90,16 @@ if __name__ == "__main__":
     # Global Variables
     global is_obstacle_in_way
     global sensor_triggered
+    global sensor_limits
 
     # Other important variables
     is_obstacle_in_way = {"center": False, "cr": False, "right": False,
                           "back": False, "left": False, "cl": False}
     sensor_triggered = 0
-    sensors = {"center": 0.5, "cr": -0.5, "right": -0.5,
-               "back": -0.5, "left": 0.5, "cl": 0.5}
+    sensors = {"center": 0.05, "cr": -0.05, "right": -0.05,
+               "back": -0.05, "left": 0.05, "cl": 0.05}
+    sensor_limits = {"center": 25.0, "cr": 10.0, "right": 10.0,
+                     "back": 15.0, "left": 10.0, "cl": 10.0}
     cmd_vel_msg = Twist()
     obs_cmd_vel_msg = Twist()
     rate = rospy.Rate(2)
@@ -106,7 +112,7 @@ if __name__ == "__main__":
             pub.publish(obs_cmd_vel_msg)
 
             # Prevent a random turn into an object after trying to avoid.
-            count = 10
+            count = 3
 
         else:
             if count is 0:
@@ -116,7 +122,7 @@ if __name__ == "__main__":
                 count += 1
 
             elif count is 3:
-                cmd_vel_msg.linear.x = 0.07
+                cmd_vel_msg.linear.x = 0.05
                 cmd_vel_msg.angular.z = 0
                 pub.publish(cmd_vel_msg)
                 count += 1

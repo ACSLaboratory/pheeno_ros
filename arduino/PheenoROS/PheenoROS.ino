@@ -67,7 +67,7 @@ void callback(const geometry_msgs::Twist &msg) {
     linear = 0;
     angular = 2550 * msg.angular.z;
 
-  } else if (msg.linear.x == 0) {
+  } else if (msg.angular.z == 0) {
     angular = 0;
 
   }
