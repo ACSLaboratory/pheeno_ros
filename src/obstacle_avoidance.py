@@ -15,7 +15,7 @@ def get_args():
 
     # Required arguments
     parser.add_argument("-n", "--number",
-                        action="namespace",
+                        action="store",
                         required=False,
                         help="Add a pheeno number namespace.",
                         default="")
@@ -33,10 +33,10 @@ def random_turn():
 
     """
     if random.random() < 0.5:
-        turn_direction = -0.05  # Turn right
+        turn_direction = -0.05  # Turn left
 
     else:
-        turn_direction = 0.05  # Turn left
+        turn_direction = 0.05  # Turn right
 
     return turn_direction
 

@@ -151,10 +151,10 @@ void loop() {
 
   } else if (angular != 0) {
     if (angular > 0) {
-      PheenoTurnLeft(angular);
+      PheenoTurnRight(angular);
 
     } else {
-      PheenoTurnRight(angular);
+      PheenoTurnLeft(angular);
     }
 
   } else {
@@ -172,8 +172,8 @@ void loop() {
 // Currently the appropriate use is just by providing a speed between 0-255,
 // without any error handling. Be careful!
 void PheenoTurnLeft(int speed) {
-  pheeno_robot.reverseRL(speed);
-  pheeno_robot.forwardLR(speed);
+  pheeno_robot.reverseLR(-1 * speed);
+  pheeno_robot.forwardRL(-1 * speed);
 
 }
 
@@ -182,8 +182,8 @@ void PheenoTurnLeft(int speed) {
 // Currently, the appropriate use is just by providing a speed between 0-255,
 // without any error handling. Be careful!
 void PheenoTurnRight(int speed) {
-  pheeno_robot.reverseLR(speed);
-  pheeno_robot.forwardRL(speed);
+  pheeno_robot.reverseRL(speed);
+  pheeno_robot.forwardLR(speed);
 
 }
 
@@ -202,7 +202,7 @@ void PheenoMoveForward(int speed) {
 // Applying a specific speed value (0-255) and both motors will apply the speed
 // without error handling. Be careful!
 void PheenoMoveReverse(int speed) {
-  pheeno_robot.reverseLR(speed);
-  pheeno_robot.reverseRL(speed);
+  pheeno_robot.reverseLR(-1 * speed);
+  pheeno_robot.reverseRL(-1 * speed);
 
 }
