@@ -5,6 +5,24 @@ import sys
 from std_msgs.msg import Float32
 
 
+def get_args():
+    """ Get arguments from rosrun for individual deployment. """
+    parser = argparse.ArgumentParser(
+        description="Obstacle avoidance python script."
+    )
+
+    # Required arguments
+    parser.add_argument("-n", "--number",
+                        action="store",
+                        required=False,
+                        help="Add a pheeno number namespace.",
+                        default="")
+
+    # The rationale behind rospy.myargv()[1:] is provided here:
+    # https://groups.google.com/a/rethinkrobotics.com/forum/#!topic/brr-users/ErXVWhRmtNA
+    return parser.parse_args(rospy.myargv()[1:])
+
+
 def print_callback(msg, sensor_location):
     """ Print encoder values in a easily legible fashion.
 
@@ -33,6 +51,14 @@ def print_callback(msg, sensor_location):
 
 
 if __name__ == "__main__":
+    # Get arguments from argument parser.
+    input_args = get_args()
+    if input_args.number is "":
+        pheeno_number = ""
+
+    else:
+        pheeno_number = "/pheeno_" + str(input_args.number)
+
     # Initialize Node
     sys.stdout.write("Initializing 'read_sensor' node...")
     rospy.init_node("read_sensor")
@@ -40,17 +66,23 @@ if __name__ == "__main__":
 
     # Create Subscriber for encoder values.
     sub_scan_center = rospy.Subscriber(
-        "/scan_center", Float32, print_callback, callback_args="center")
+        pheeno_number + "/scan_center", Float32, print_callback,
+        callback_args="center")
     sub_scan_back = rospy.Subscriber(
-        "/scan_back", Float32, print_callback, callback_args="back")
+        pheeno_number + "/scan_back", Float32, print_callback,
+        callback_args="back")
     sub_scan_right = rospy.Subscriber(
-        "/scan_right", Float32, print_callback, callback_args="right")
+        pheeno_number + "/scan_right", Float32, print_callback,
+        callback_args="right")
     sub_scan_left = rospy.Subscriber(
-        "/scan_left", Float32, print_callback, callback_args="left")
+        pheeno_number + "/scan_left", Float32, print_callback,
+        callback_args="left")
     sub_scan_cr = rospy.Subscriber(
-        "/scan_cr", Float32, print_callback, callback_args="cr")
+        pheeno_number + "/scan_cr", Float32, print_callback,
+        callback_args="cr")
     sub_scan_cl = rospy.Subscriber(
-        "/scan_cl", Float32, print_callback, callback_args="cl")
+        pheeno_number + "/scan_cl", Float32, print_callback,
+        callback_args="cl")
 
     # Other variables
     global sensor_values

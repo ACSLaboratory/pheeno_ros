@@ -5,6 +5,24 @@ import sys
 from std_msgs.msg import Int16
 
 
+def get_args():
+    """ Get arguments from rosrun for individual deployment. """
+    parser = argparse.ArgumentParser(
+        description="Obstacle avoidance python script."
+    )
+
+    # Required arguments
+    parser.add_argument("-n", "--number",
+                        action="store",
+                        required=False,
+                        help="Add a pheeno number namespace.",
+                        default="")
+
+    # The rationale behind rospy.myargv()[1:] is provided here:
+    # https://groups.google.com/a/rethinkrobotics.com/forum/#!topic/brr-users/ErXVWhRmtNA
+    return parser.parse_args(rospy.myargv()[1:])
+
+
 def print_callback(msg, encoder_location):
     """ Print encoder values in a easily legible fashion.
 
@@ -31,6 +49,14 @@ def print_callback(msg, encoder_location):
 
 
 if __name__ == "__main__":
+    # Get arguments from argument parser.
+    input_args = get_args()
+    if input_args.number is "":
+        pheeno_number = ""
+
+    else:
+        pheeno_number = "/pheeno_" + str(input_args.number)
+
     # Initialize Node
     sys.stdout.write("Initializing 'read_encoder' node...")
     rospy.init_node("read_encoder")
@@ -38,13 +64,17 @@ if __name__ == "__main__":
 
     # Create Subscriber for encoder values.
     sub_encoder_LL = rospy.Subscriber(
-        "/encoder_LL", Int16, print_callback, callback_args="LL")
+        pheeno_number + "/encoder_LL", Int16, print_callback,
+        callback_args="LL")
     sub_encoder_LR = rospy.Subscriber(
-        "/encoder_LR", Int16, print_callback, callback_args="LR")
+        pheeno_number + "/encoder_LR", Int16, print_callback,
+        callback_args="LR")
     sub_encoder_RL = rospy.Subscriber(
-        "/encoder_RL", Int16, print_callback, callback_args="RL")
+        pheeno_number + "/encoder_RL", Int16, print_callback,
+        callback_args="RL")
     sub_encoder_RR = rospy.Subscriber(
-        "/encoder_RR", Int16, print_callback, callback_args="RR")
+        pheeno_number + "/encoder_RR", Int16, print_callback,
+        callback_args="RR")
 
     # Other variables
     global encoder_values
