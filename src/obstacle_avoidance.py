@@ -56,7 +56,7 @@ def obstacle_check(msg, ir_location):
 if __name__ == "__main__":
     # Get arguments from argument parser.
     input_args = get_args()
-    if input_args is "":
+    if input_args.number is "":
         pheeno_number = ""
 
     else:
