@@ -49,35 +49,42 @@ def print_callback(msg, encoder_location):
 
 
 if __name__ == "__main__":
-    # Get arguments from argument parser.
-    input_args = get_args()
-    if input_args.number is "":
-        pheeno_number = ""
+    try:
+        # Get arguments from argument parser.
+        input_args = get_args()
+        if input_args.number is "":
+            pheeno_number = ""
 
-    else:
-        pheeno_number = "/pheeno_" + str(input_args.number)
+        else:
+            pheeno_number = "/pheeno_" + str(input_args.number)
 
-    # Initialize Node
-    sys.stdout.write("Initializing 'read_encoder' node...")
-    rospy.init_node("read_encoder")
-    sys.stdout.write("done!\n")
+        # Initialize Node
+        sys.stdout.write("Initializing 'read_encoder' node...")
+        rospy.init_node("read_encoder")
+        sys.stdout.write("done!\n")
 
-    # Create Subscriber for encoder values.
-    sub_encoder_LL = rospy.Subscriber(
-        pheeno_number + "/encoder_LL", Int16, print_callback,
-        callback_args="LL")
-    sub_encoder_LR = rospy.Subscriber(
-        pheeno_number + "/encoder_LR", Int16, print_callback,
-        callback_args="LR")
-    sub_encoder_RL = rospy.Subscriber(
-        pheeno_number + "/encoder_RL", Int16, print_callback,
-        callback_args="RL")
-    sub_encoder_RR = rospy.Subscriber(
-        pheeno_number + "/encoder_RR", Int16, print_callback,
-        callback_args="RR")
+        # Create Subscriber for encoder values.
+        sub_encoder_LL = rospy.Subscriber(
+            pheeno_number + "/encoder_LL", Int16, print_callback,
+            callback_args="LL")
+        sub_encoder_LR = rospy.Subscriber(
+            pheeno_number + "/encoder_LR", Int16, print_callback,
+            callback_args="LR")
+        sub_encoder_RL = rospy.Subscriber(
+            pheeno_number + "/encoder_RL", Int16, print_callback,
+            callback_args="RL")
+        sub_encoder_RR = rospy.Subscriber(
+            pheeno_number + "/encoder_RR", Int16, print_callback,
+            callback_args="RR")
 
-    # Other variables
-    global encoder_values
-    encoder_values = {"LL": 0, "LR": 0, "RL": 0, "RR": 0}
+        # Other variables
+        global encoder_values
+        encoder_values = {"LL": 0, "LR": 0, "RL": 0, "RR": 0}
 
-    rospy.spin()
+        rospy.spin()
+
+    except rospy.ROSInterruptException:
+        pass
+
+    finally:
+        rospy.loginfo("Exiting 'read_encoder' node.")

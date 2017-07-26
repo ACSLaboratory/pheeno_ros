@@ -51,42 +51,49 @@ def print_callback(msg, sensor_location):
 
 
 if __name__ == "__main__":
-    # Get arguments from argument parser.
-    input_args = get_args()
-    if input_args.number is "":
-        pheeno_number = ""
+    try:
+        # Get arguments from argument parser.
+        input_args = get_args()
+        if input_args.number is "":
+            pheeno_number = ""
 
-    else:
-        pheeno_number = "/pheeno_" + str(input_args.number)
+        else:
+            pheeno_number = "/pheeno_" + str(input_args.number)
 
-    # Initialize Node
-    sys.stdout.write("Initializing 'read_sensor' node...")
-    rospy.init_node("read_sensor")
-    sys.stdout.write("done!\n")
+        # Initialize Node
+        sys.stdout.write("Initializing 'read_sensor' node...")
+        rospy.init_node("read_sensor")
+        sys.stdout.write("done!\n")
 
-    # Create Subscriber for encoder values.
-    sub_scan_center = rospy.Subscriber(
-        pheeno_number + "/scan_center", Float32, print_callback,
-        callback_args="center")
-    sub_scan_back = rospy.Subscriber(
-        pheeno_number + "/scan_back", Float32, print_callback,
-        callback_args="back")
-    sub_scan_right = rospy.Subscriber(
-        pheeno_number + "/scan_right", Float32, print_callback,
-        callback_args="right")
-    sub_scan_left = rospy.Subscriber(
-        pheeno_number + "/scan_left", Float32, print_callback,
-        callback_args="left")
-    sub_scan_cr = rospy.Subscriber(
-        pheeno_number + "/scan_cr", Float32, print_callback,
-        callback_args="cr")
-    sub_scan_cl = rospy.Subscriber(
-        pheeno_number + "/scan_cl", Float32, print_callback,
-        callback_args="cl")
+        # Create Subscriber for encoder values.
+        sub_scan_center = rospy.Subscriber(
+            pheeno_number + "/scan_center", Float32, print_callback,
+            callback_args="center")
+        sub_scan_back = rospy.Subscriber(
+            pheeno_number + "/scan_back", Float32, print_callback,
+            callback_args="back")
+        sub_scan_right = rospy.Subscriber(
+            pheeno_number + "/scan_right", Float32, print_callback,
+            callback_args="right")
+        sub_scan_left = rospy.Subscriber(
+            pheeno_number + "/scan_left", Float32, print_callback,
+            callback_args="left")
+        sub_scan_cr = rospy.Subscriber(
+            pheeno_number + "/scan_cr", Float32, print_callback,
+            callback_args="cr")
+        sub_scan_cl = rospy.Subscriber(
+            pheeno_number + "/scan_cl", Float32, print_callback,
+            callback_args="cl")
 
-    # Other variables
-    global sensor_values
-    sensor_values = {"center": 0.0, "back": 0.0, "right": 0.0, "left": 0.0,
-                     "cr": 0.0, "cl": 0.0}
+        # Other variables
+        global sensor_values
+        sensor_values = {"center": 0.0, "back": 0.0, "right": 0.0, "left": 0.0,
+                         "cr": 0.0, "cl": 0.0}
 
-    rospy.spin()
+        rospy.spin()
+
+    except rospy.ROSInterruptException:
+        pass
+
+    finally:
+        rospy.loginfo("Exiting 'read_sensor' node.")

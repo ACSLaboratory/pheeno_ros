@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# The following script is only for the installation of ROS Indigo with Rasbian # Jessie.
+# The following script is only for the installation of ROS Indigo with Raspbian # Jessie.
 #
 # The installation will install:
 #       ros_comm - ROS Indigo distro communication tools.
