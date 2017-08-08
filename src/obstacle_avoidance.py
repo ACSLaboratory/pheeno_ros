@@ -41,16 +41,52 @@ def random_turn():
     return turn_direction
 
 
-def obstacle_check(msg, ir_location):
+def obstacle_callback(msg, ir_location):
     global is_obstacle_in_way
     global sensor_triggered
     global sensor_limits
+    global sensor_values
     if msg.data < sensor_limits[ir_location]:
         sensor_triggered = ir_location
+        sensor_values[ir_location] = msg.data
         is_obstacle_in_way[ir_location] = True
 
     else:
+        sensor_values[ir_location] = msg.data
         is_obstacle_in_way[ir_location] = False
+
+
+def avoid_obstacle():
+    global is_obstacle_in_way
+    global sensor_values
+    global sensors
+    global sensor_triggered
+
+    if is_obstacle_in_way["center"] is True:
+        if (sensor_values["right"] < 10 and
+                sensor_values["left"] < 10):
+            linear = 0
+            angular = random_turn()
+
+        if sensor_values["right"] < sensor_values["left"]:
+            linear = 0
+            angular = -0.05  # Turn Left
+
+        else:
+            linear = 0
+            angular = 0.05  # Turn Right
+
+    elif (is_obstacle_in_way["cl"] is True and
+            is_obstacle_in_way["cr"] is True):
+        linear = 0
+        angular = random_turn()
+
+    # If individual IR sensors are triggered.
+    else:
+        linear = 0
+        angular = sensors[sensor_triggered]
+
+    return linear, angular
 
 
 if __name__ == "__main__":
@@ -63,37 +99,12 @@ if __name__ == "__main__":
         else:
             pheeno_number = "/pheeno_" + str(input_args.number)
 
-        # Initialize Node
-        rospy.init_node("pheeno_obstacle_avoidance")
-
-        # Create Publishers and Subscribers
-        pub = rospy.Publisher(
-            pheeno_number + "/cmd_vel", Twist, queue_size=100)
-        sub_ir_center = rospy.Subscriber(
-            pheeno_number + "/scan_center", Float32, obstacle_check,
-            callback_args="center")
-        sub_ir_back = rospy.Subscriber(
-            pheeno_number + "/scan_back", Float32, obstacle_check,
-            callback_args="back")
-        sub_ir_right = rospy.Subscriber(
-            pheeno_number + "/scan_right", Float32, obstacle_check,
-            callback_args="right")
-        sub_ir_left = rospy.Subscriber(
-            pheeno_number + "/scan_left", Float32, obstacle_check,
-            callback_args="left")
-        sub_ir_cr = rospy.Subscriber(
-            pheeno_number + "/scan_cr", Float32, obstacle_check,
-            callback_args="cr")
-        sub_ir_cl = rospy.Subscriber(
-            pheeno_number + "/scan_cl", Float32, obstacle_check,
-            callback_args="cl")
-
         # Global Variables
         global is_obstacle_in_way
         global sensor_triggered
         global sensor_limits
+        global sensor_values
 
-        # Other important variables
         is_obstacle_in_way = {"center": False, "cr": False, "right": False,
                               "back": False, "left": False, "cl": False}
         sensor_triggered = 0
@@ -101,15 +112,45 @@ if __name__ == "__main__":
                    "back": -0.05, "left": 0.05, "cl": 0.05}
         sensor_limits = {"center": 25.0, "cr": 10.0, "right": 10.0,
                          "back": 15.0, "left": 10.0, "cl": 10.0}
+        sensor_values = {"center": 0, "cr": 0, "right": 0,
+                         "back": 0, "left": 0, "cl": 0}
+
+        # Initialize Node
+        rospy.init_node("pheeno_obstacle_avoidance")
+
+        # Create Publishers and Subscribers
+        pub = rospy.Publisher(
+            pheeno_number + "/cmd_vel", Twist, queue_size=100)
+        sub_ir_center = rospy.Subscriber(
+            pheeno_number + "/scan_center", Float32, obstacle_callback,
+            callback_args="center")
+        sub_ir_back = rospy.Subscriber(
+            pheeno_number + "/scan_back", Float32, obstacle_callback,
+            callback_args="back")
+        sub_ir_right = rospy.Subscriber(
+            pheeno_number + "/scan_right", Float32, obstacle_callback,
+            callback_args="right")
+        sub_ir_left = rospy.Subscriber(
+            pheeno_number + "/scan_left", Float32, obstacle_callback,
+            callback_args="left")
+        sub_ir_cr = rospy.Subscriber(
+            pheeno_number + "/scan_cr", Float32, obstacle_callback,
+            callback_args="cr")
+        sub_ir_cl = rospy.Subscriber(
+            pheeno_number + "/scan_cl", Float32, obstacle_callback,
+            callback_args="cl")
+
+        # Other important variables
         cmd_vel_msg = Twist()
         obs_cmd_vel_msg = Twist()
-        rate = rospy.Rate(2)
+        rate = rospy.Rate(10)
         count = 0
 
         while not rospy.is_shutdown():
             if True in is_obstacle_in_way.values():
-                obs_cmd_vel_msg.linear.x = 0
-                obs_cmd_vel_msg.angular.z = sensors[sensor_triggered]
+                linear, angular = avoid_obstacle()
+                obs_cmd_vel_msg.linear.x = linear
+                obs_cmd_vel_msg.angular.z = angular
                 pub.publish(obs_cmd_vel_msg)
 
                 # Prevent a random turn into an object after trying to avoid.
