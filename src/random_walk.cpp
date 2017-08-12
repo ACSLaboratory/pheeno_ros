@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
+#include "command_line_parser.h"
 #include <iostream>
 #include <stdlib.h>
 #include <cmath>
@@ -16,19 +17,18 @@ int main(int argc, char **argv)
   // Initial Variables
   std::string pheeno_name;
 
+  // Parse inputs
+  CommandLineParser cml_parser(argc, argv);
+
   // Parse input arguments for Pheeno name.
-  if (argc == 1)
+  if (cml_parser["-n"])
   {
-    ROS_ERROR("Need to provide Pheeno number!");
-  }
-  else if (argc > 2)
-  {
-    ROS_ERROR("Too many arguments!");
+    std::string pheeno_number = cml_parser("-n");
+    pheeno_name = "/pheeno_" + pheeno_number;
   }
   else
   {
-    std::string pheeno_number(argv[1], argc);
-    pheeno_name = "/pheeno_" + pheeno_number;
+    ROS_ERROR("Need to provide Pheeno number!");
   }
 
   // Initializing ROS node

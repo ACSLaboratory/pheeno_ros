@@ -31,6 +31,7 @@ catkin_package(
 ###########
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
   #### Uncomment these two to use pi cam with C++ ####
   # ${OpenCV_INCLUDE_DIRS}
@@ -68,9 +69,22 @@ include_directories(
 # Install #
 ###########
 
-#### Uncomment this section to use pi cam with C++ ####
-# include(TARGETS something
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#)
+add_executable(obstacle_avoidance src/command_line_parser.cpp src/obstacle_avoidance.cpp)
+target_link_libraries(obstacle_avoidance ${catkin_LIBRARIES})
+
+add_executable(random_walk src/command_line_parser.cpp src/random_walk.cpp)
+target_link_libraries(random_walk ${catkin_LIBRARIES})
+
+## Mark executables and/or libraries for installation
+## (Uncomment raspicam_node to build it)
+install(TARGETS obstacle_avoidance random_walk # raspicam_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+## Mark cpp header files for installation
+install(DIRECTORY include/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+)
