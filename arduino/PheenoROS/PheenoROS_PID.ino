@@ -57,10 +57,10 @@ ros::Publisher pub_encoder_RR("/encoder_RR", &encoder_RR_msg);  // Encoder RR
 
 // Callback for cmd_vel Subscriber.
 // The following callback receives a command in terms of m/s. This will have to
-// be converted into a binary output between 0-255.
+// be converted into a rad/s output between -40-40 rad/s.
 void callback(const geometry_msgs::Twist &msg) {
   if (msg.linear.x > 0 || msg.linear.x < 0) {
-    linear = 2550 * msg.linear.x;
+    linear = 40 * msg.linear.x;
     angular = 0;
 
   } else if (msg.linear.x == 0) {
@@ -70,7 +70,7 @@ void callback(const geometry_msgs::Twist &msg) {
 
   if (msg.angular.z > 0 || msg.angular.z < 0) {
     linear = 0;
-    angular = 2550 * msg.angular.z;
+    angular = 40 * msg.angular.z;
 
   } else if (msg.angular.z == 0) {
     angular = 0;
@@ -193,40 +193,40 @@ void loop() {
 
 
 // Turns the Pheeno left.
-// Currently the appropriate use is just by providing a speed between 0-255,
-// without any error handling. Be careful!
+// Currently the appropriate use is just by providing a speed in rad/s,
+// without any error handling. Be careful! (RANGE: -40 to 40 rad/s)
 void PheenoTurnLeft(int speed) {
-  pheeno_robot.reverseLR(-1 * speed);
-  pheeno_robot.forwardRL(-1 * speed);
+  pheeno_robot.PIDMotorControlLR(-1 * abs(speed));
+  pheeno_robot.PIDMotorControlRL(abs(speed));
 
 }
 
 
 // Turns the Pheeno Right.
-// Currently, the appropriate use is just by providing a speed between 0-255,
-// without any error handling. Be careful!
+// Currently, the appropriate use is just by providing a speed in rad/s,
+// without any error handling. Be careful! (RANGE: -40 to 40 rad/s)
 void PheenoTurnRight(int speed) {
-  pheeno_robot.reverseRL(speed);
-  pheeno_robot.forwardLR(speed);
+  pheeno_robot.PIDMotorControlLR(abs(speed));
+  pheeno_robot.PIDMotorControlRL(-1 * abs(speed));
 
 }
 
 
 // Moves the Pheeno Forward.
-// Applying a specific speed value (0-255) and both motors will apply the speed
-// without error handling. Be careful!
+// Applying a specific speed value (in rad/s) and both motors will apply the speed
+// without error handling. Be careful! (RANGE: -40 to 40 rad/s)
 void PheenoMoveForward(int speed) {
-  pheeno_robot.forwardLR(speed);
-  pheeno_robot.forwardRL(speed);
+  pheeno_robot.PIDMotorControlLR(speed);
+  pheeno_robot.PIDMotorControlRL(speed);
 
 }
 
 
 // Moves the Pheeno Reverse.
-// Applying a specific speed value (0-255) and both motors will apply the speed
-// without error handling. Be careful!
+// Applying a specific speed value (in rad/s) and both motors will apply the speed
+// without error handling. Be careful! (RANGE: -40 to 40 rad/s)
 void PheenoMoveReverse(int speed) {
-  pheeno_robot.reverseLR(-1 * speed);
-  pheeno_robot.reverseRL(-1 * speed);
+  pheeno_robot.PIDMotorControlLR(-1 * speed);
+  pheeno_robot.PIDMotorControlRL(-1 * speed);
 
 }
