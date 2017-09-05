@@ -69,7 +69,7 @@ include_directories(
 # Install #
 ###########
 
-add_executable(obstacle_avoidance src/command_line_parser.cpp src/obstacle_avoidance.cpp)
+add_executable(obstacle_avoidance src/command_line_parser.cpp src/sensor_listener.cpp src/obstacle_avoidance.cpp)
 target_link_libraries(obstacle_avoidance ${catkin_LIBRARIES})
 
 add_executable(random_walk src/command_line_parser.cpp src/random_walk.cpp)
