@@ -3,6 +3,7 @@
 #include <std_msgs/Float32.h>
 #include <std_msgs/Int16.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Vector3.h>
 #include "PheenoV2Basic.h"
 
 // Create ROS Node instance
@@ -24,9 +25,11 @@ std_msgs::Int16 encoder_LL_msg;  // Left HBridge, Left Motor Encoder
 std_msgs::Int16 encoder_LR_msg;  // Left HBridge, Right Motor Encoder
 std_msgs::Int16 encoder_RL_msg;  // Right HBridge, Left Motor Encoder
 std_msgs::Int16 encoder_RR_msg;  // Right HBridge, Right Motor Encoder
-// std_msgs::Float32 mag_msg;
-// std_msgs::Float32 gyro_msg;
-// std_msgs::Float32 accel_msg;
+
+// Uncomment these if you would like magnetometer, accelerometer, or gyro data.
+// geometry_msgs::Vector3 mag_msg;
+// geometry_msgs::Vector3 gyro_msg;
+// geometry_msgs::Vector3 accel_msg;
 
 
 // Create Variables for Storing Motion Data
@@ -45,6 +48,8 @@ ros::Publisher pub_encoder_LL("/encoder_LL", &encoder_LL_msg);  // Encoder LL
 ros::Publisher pub_encoder_LR("/encoder_LR", &encoder_LR_msg);  // Encoder LR
 ros::Publisher pub_encoder_RL("/encoder_RL", &encoder_RL_msg);  // Encoder RL
 ros::Publisher pub_encoder_RR("/encoder_RR", &encoder_RR_msg);  // Encoder RR
+
+// Uncomment these if you would like magnetometer, accelerometer, or gyro data.
 // ros::Publisher pub_mag("/mag", &mag_msg);        // Magnetometer
 // ros::Publisher pub_gyro("/gyro", &gyro_msg);     // Gyroscope
 // ros::Publisher pub_accel("/accel", &accel_msg);  // Accelerometer
@@ -97,6 +102,8 @@ void setup() {
   nh.advertise(pub_encoder_LR);
   nh.advertise(pub_encoder_RL);
   nh.advertise(pub_encoder_RR);
+
+  // Uncomment these if you would like magnetometer, accelerometer, or gyro data.
   // nh.advertise(pub_mag);
   // nh.advertise(pub_gyro);
   // nh.advertise(pub_accel);
@@ -128,6 +135,17 @@ void loop() {
   encoder_RL_msg.data = pheeno_robot.encoderCountRL;
   encoder_RR_msg.data = pheeno_robot.encoderCountRR;
 
+  // Uncomment these if you would like magnetometer, accelerometer, or gyro data.
+  // mag_msg.x = pheeno_robot.IMUMAGX;
+  // mag_msg.y = pheeno_robot.IMUMAGY;
+  // mag_msg.z = pheeno_robot.IMUMAGZ;
+  // accel_msg.x = pheeno_robot.IMUACCX;
+  // accel_msg.y = pheeno_robot.IMUACCY;
+  // accel_msg.z = pheeno_robot.IMUACCZ;
+  // gyro_msg.x = pheeno_robot.IMUGYROX;
+  // gyro_msg.y = pheeno_robot.IMUGYROY;
+  // gyro_msg.z = pheeno_robot.IMUGYROZ;
+
   // Publish the Topics
   pub_ir_center.publish(&scan_center_msg);
   pub_ir_back.publish(&scan_back_msg);
@@ -139,6 +157,11 @@ void loop() {
   pub_encoder_LR.publish(&encoder_LR_msg);
   pub_encoder_RL.publish(&encoder_RL_msg);
   pub_encoder_RR.publish(&encoder_RR_msg);
+
+  // Uncomment these if you would like magnetometer, accelerometer, or gyro data.
+  // pub_mag.publish(&mag_msg);
+  // pub_accel.publish(&accel_msg);
+  // pub_gyro.publish(&gyro_msg);
 
   if (linear != 0) {
     if (linear > 0) {
