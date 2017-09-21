@@ -77,7 +77,7 @@ target_link_libraries(random_walk ${catkin_LIBRARIES})
 
 ## Mark executables and/or libraries for installation
 ## (Uncomment raspicam_node to build it)
-include(TARGETS obstacle_avoidance random_walk # raspicam_node
+install(TARGETS obstacle_avoidance random_walk # raspicam_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
