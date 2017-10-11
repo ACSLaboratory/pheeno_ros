@@ -9,7 +9,7 @@ double randomTurn()
   return rand() % 10 + 1 <= 5 ? -0.07 : 0.07;
 }
 
-void avoidObstacles(std::vector<double> values, double& linear, double& angular, double random_turn_value)
+void avoidObstacles(std::vector<double> values, double& linear, double& angular, double& random_turn_value)
 {
   double range_to_avoid = 20.0;
   if (values[0] < range_to_avoid)
@@ -61,6 +61,11 @@ void avoidObstacles(std::vector<double> values, double& linear, double& angular,
   {
     linear = 0.0;
     angular = random_turn_value;
+  }
+
+  if (angular != random_turn_value)
+  {
+    random_turn_value = angular;
   }
 }
 
