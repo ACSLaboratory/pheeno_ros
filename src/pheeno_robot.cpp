@@ -3,7 +3,6 @@
 #include "std_msgs/Int16.h"
 #include "geometry_msgs/Twist.h"
 #include "nav_msgs/Odometry.h"
-#include "pheeno_markov_chain/ColorsFound.h"
 #include "pheeno_robot.h"
 #include <vector>
 #include <complex>
@@ -27,12 +26,6 @@ PheenoRobot::PheenoRobot(std::string pheeno_name)
   for (int i = 0; i < 6; i++)
   {
     ir_sensor_values.push_back(0);
-  }
-
-  // Create Colors found vector upon construction. (4 placements)
-  for (int i = 0; i < 4; i++)
-  {
-    color_state_facing.push_back(false);
   }
 
   // Create Odom vector upon construction. (3 placements)
@@ -64,9 +57,6 @@ PheenoRobot::PheenoRobot(std::string pheeno_name)
                                &PheenoRobot::irSensorBackCallback, this);
   sub_ir_bottom_ = nh_.subscribe(pheeno_name + "/scan_bottom", 10,
                                  &PheenoRobot::irSensorBottomCallback, this);
-
-  sub_pheeno_cam_ = nh_.subscribe(pheeno_name + "/colors_found", 1,
-                                  &PheenoRobot::piCamColorCallback, this);
 
   sub_odom_ = nh_.subscribe(pheeno_name + "/odom", 1,
                             &PheenoRobot::odomCallback, this);
@@ -187,7 +177,7 @@ void PheenoRobot::irSensorBottomCallback(const std_msgs::Int16::ConstPtr& msg)
  * This will set message data to odom pose (position and orientation) and twist
  * (linear and angular) variables.
  *
- * NOTE: ONLY FOR THE PHEENO MARKOV CHAIN SIM EXPERIMENT.
+ * NOTE: ONLY USED IF `libgazebo_ros_p3d.so` PLUGIN IS IN THE XACRO FILE.
  */
 void PheenoRobot::odomCallback(const nav_msgs::Odometry::ConstPtr& msg)
 {
@@ -222,35 +212,6 @@ void PheenoRobot::piCamCallback()
 }
 
 /*
- * Callback function for `/ColorsFound` ROS subscriber.
- *
- * Recieves a 4x1 vector containing bools for certain colors. If the
- * value is True, the color associated with that position in the vector
- * has been found in the environment. The information is set to an
- * appropriate class data member.
- *
- * NOTE: ONLY USED FOR THE PHEENO MARKOV CHAIN (AND SIM) EXPERIMENT.
- */
-void PheenoRobot::piCamColorCallback(const pheeno_markov_chain::ColorsFound& msg)
-{
-  for (int i = 0; i < 4; i++)
-  {
-    color_state_facing[i] = msg.data[i];
-  }
-}
-
-/*
- * Returns True if the color (associated with an index) has been found. This class
- * data member checked is modified by the member function piCamColorCallback().
- *
- * NOTE: ONLY USED FOR THE PHEENO MARKOV CHAIN (AND SIM) EXPERIMENT.
- */
-bool PheenoRobot::checkFrontColor(int color)
-{
-  return this->color_state_facing[color - 1];  // -1 to zero index.
-}
-
-/*
  * Generates a random turn direction (a sign change) based on a user provided value.
  */
 double PheenoRobot::randomTurn(float angular)
@@ -266,18 +227,18 @@ double PheenoRobot::randomTurn(float angular)
  * the references to linear and angular are set to specific values to make the
  * robot avoid the obstacle.
  */
-void PheenoRobot::avoidObstaclesLinear(std::vector<double> values, double& linear, double& angular, float angular_velocity, float linear_velocity, double range_to_avoid)
+void PheenoRobot::avoidObstaclesLinear(double& linear, double& angular, float angular_velocity, float linear_velocity, double range_to_avoid)
 {
-  if (values[0] < range_to_avoid)
+  if (ir_sensor_values[0] < range_to_avoid)
   {
-    if (std::abs((values[2] - values[3])) < 5.0 ||
-        (values[2] > range_to_avoid && values[3] > range_to_avoid))
+    if (std::abs((ir_sensor_values[2] - ir_sensor_values[3])) < 5.0 ||
+        (ir_sensor_values[2] > range_to_avoid && ir_sensor_values[3] > range_to_avoid))
     {
       linear = 0.0;
       angular = randomTurn();
     }
 
-    if (values[2] < values[3])
+    if (ir_sensor_values[2] < ir_sensor_values[3])
     {
       linear = 0.0;
       angular = -1 * angular_velocity;  // Turn Left
@@ -288,27 +249,27 @@ void PheenoRobot::avoidObstaclesLinear(std::vector<double> values, double& linea
       angular = angular_velocity;  // Turn Right
     }
   }
-  else if (values[4] < range_to_avoid && values[5] < range_to_avoid)
+  else if (ir_sensor_values[4] < range_to_avoid && ir_sensor_values[5] < range_to_avoid)
   {
     linear = 0.0;
     angular = randomTurn();
   }
-  else if (values[4] < range_to_avoid)
+  else if (ir_sensor_values[4] < range_to_avoid)
   {
     linear = 0.0;
     angular = -1 * angular_velocity;  // Turn Left
   }
-  else if (values[5] < range_to_avoid)
+  else if (ir_sensor_values[5] < range_to_avoid)
   {
     linear = 0.0;
     angular = angular_velocity;  // Turn Right
   }
-  else if (values[2] < range_to_avoid)
+  else if (ir_sensor_values[2] < range_to_avoid)
   {
     linear = 0.0;
     angular = -1 * angular_velocity;  // Turn Left
   }
-  else if (values[3] < range_to_avoid)
+  else if (ir_sensor_values[3] < range_to_avoid)
   {
     linear = 0.0;
     angular = angular_velocity;  // Turn Right
@@ -329,17 +290,17 @@ void PheenoRobot::avoidObstaclesLinear(std::vector<double> values, double& linea
  * the obstacle. Compared to the linear version of this callback member
  * function, this function only modifies the angular reference.
  */
-void PheenoRobot::avoidObstaclesAngular(std::vector<double> values, double& angular, double& random_turn_value, float angular_velocity, double range_to_avoid)
+void PheenoRobot::avoidObstaclesAngular(double& angular, double& random_turn_value, float angular_velocity, double range_to_avoid)
 {
-  if (values[0] < range_to_avoid)
+  if (ir_sensor_values[0] < range_to_avoid)
   {
-    if (std::abs((values[2] - values[3])) < 5.0 ||
-        (values[2] > range_to_avoid && values[3] > range_to_avoid))
+    if (std::abs((ir_sensor_values[2] - ir_sensor_values[3])) < 5.0 ||
+        (ir_sensor_values[2] > range_to_avoid && ir_sensor_values[3] > range_to_avoid))
     {
       angular = randomTurn();
     }
 
-    if (values[2] < values[3])
+    if (ir_sensor_values[2] < ir_sensor_values[3])
     {
       angular = -1 * angular_velocity;  // Turn Left
     }
@@ -348,23 +309,23 @@ void PheenoRobot::avoidObstaclesAngular(std::vector<double> values, double& angu
       angular = angular_velocity;  // Turn Right
     }
   }
-  else if (values[4] < range_to_avoid && values[5] < range_to_avoid)
+  else if (ir_sensor_values[4] < range_to_avoid && ir_sensor_values[5] < range_to_avoid)
   {
     angular = randomTurn();
   }
-  else if (values[4] < range_to_avoid)
+  else if (ir_sensor_values[4] < range_to_avoid)
   {
     angular = -1 * angular_velocity;  // Turn Left
   }
-  else if (values[5] < range_to_avoid)
+  else if (ir_sensor_values[5] < range_to_avoid)
   {
     angular = angular_velocity;  // Turn Right
   }
-  else if (values[2] < range_to_avoid)
+  else if (ir_sensor_values[2] < range_to_avoid)
   {
     angular = -1 * angular_velocity;  // Turn Left
   }
-  else if (values[3] < range_to_avoid)
+  else if (ir_sensor_values[3] < range_to_avoid)
   {
     angular = angular_velocity;  // Turn Right
   }

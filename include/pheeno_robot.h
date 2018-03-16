@@ -6,7 +6,6 @@
 #include "std_msgs/Int16.h"
 #include "geometry_msgs/Twist.h"
 #include "nav_msgs/Odometry.h"
-#include "pheeno_markov_chain/ColorsFound.h"
 #include <vector>
 #include <complex>
 #include <cstdlib>
@@ -45,10 +44,10 @@ public:
 
   // Public Movement Methods
   double randomTurn(float angular = 0.06);
-  void avoidObstaclesLinear(std::vector<double> values, double &linear, double &angular,
+  void avoidObstaclesLinear(double &linear, double &angular,
                             float angular_velocity = 1.2, float linear_velocity = 0.08,
                             double range_to_avoid = 20.0);
-  void avoidObstaclesAngular(std::vector<double>, double &angular, double &random_turn_value,
+  void avoidObstaclesAngular(double &angular, double &random_turn_value,
                              float angular_velocity = 1.2, double range_to_avoid = 20.0);
 
   // Public Publishers
@@ -83,13 +82,12 @@ private:
   void irSensorCRightCallback(const std_msgs::Float32::ConstPtr& msg);
   void irSensorCLeftCallback(const std_msgs::Float32::ConstPtr& msg);
   void irSensorBottomCallback(const std_msgs::Int16::ConstPtr& msg);
-  
+
   // Odom Callback Methods
   void odomCallback(const nav_msgs::Odometry::ConstPtr& msg);
 
   // Camera Callback Modules
   void piCamCallback();
-  void piCamColorCallback(const pheeno_markov_chain::ColorsFound& msg);
 };
 
 #endif //GUARD_PHEENO_ROBOT_H

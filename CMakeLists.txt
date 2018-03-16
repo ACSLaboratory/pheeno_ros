@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  nav_msgs
+  sensor_msgs
   #### Uncomment these two to use pi cam with C++ ####
   # cv_brdige
   # image_transport
@@ -22,7 +24,7 @@ catkin_package(
   #### Uncomment these four to use pi cam with C++ ####
   #  INCLUDE_DIRS include
   #  LIBRARIES raspicam
-  #  CATKIN_DEPENDS actionlib actionlib_msgs geometry_msgs roscpp rospy std_msgs image_transport cv_bridge
+  #  CATKIN_DEPENDS actionlib actionlib_msgs geometry_msgs roscpp rospy std_msgs image_transport cv_bridge nav_msgs sensor_msgs
   #  DEPENDS system_lib OpenCV
 )
 
@@ -69,10 +71,10 @@ include_directories(
 # Install #
 ###########
 
-add_executable(obstacle_avoidance src/command_line_parser.cpp src/sensor_listener.cpp src/obstacle_avoidance.cpp)
+add_executable(obstacle_avoidance src/command_line_parser.cpp src/pheeno_robot.cpp src/obstacle_avoidance.cpp)
 target_link_libraries(obstacle_avoidance ${catkin_LIBRARIES})
 
-add_executable(random_walk src/command_line_parser.cpp src/random_walk.cpp)
+add_executable(random_walk src/command_line_parser.cpp src/pheeno_robot.cpp src/random_walk.cpp)
 target_link_libraries(random_walk ${catkin_LIBRARIES})
 
 ## Mark executables and/or libraries for installation
