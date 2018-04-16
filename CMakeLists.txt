@@ -69,10 +69,10 @@ include_directories(
 # Install #
 ###########
 
-add_executable(obstacle_avoidance src/command_line_parser.cpp src/sensor_listener.cpp src/obstacle_avoidance.cpp)
+add_executable(obstacle_avoidance src/command_line_parser.cpp src/pheeno_robot.cpp src/obstacle_avoidance.cpp)
 target_link_libraries(obstacle_avoidance ${catkin_LIBRARIES})
 
-add_executable(random_walk src/command_line_parser.cpp src/random_walk.cpp)
+add_executable(random_walk src/command_line_parser.cpp src/pheeno_robot.cpp src/random_walk.cpp)
 target_link_libraries(random_walk ${catkin_LIBRARIES})
 
 ## Mark executables and/or libraries for installation
