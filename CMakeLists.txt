@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  nav_msgs
+  sensor_msgs
   #### Uncomment these two to use pi cam with C++ ####
   # cv_brdige
   # image_transport
