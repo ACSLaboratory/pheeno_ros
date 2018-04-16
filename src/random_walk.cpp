@@ -1,16 +1,7 @@
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
 #include "command_line_parser.h"
-#include <iostream>
-#include <stdlib.h>
-#include <cmath>
-
-
-double randomTurn()
-{
-  return rand() % 10 + 1 <= 5 ? -0.07 : 0.07;
-}
-
+#include "pheeno_robot.h"
 
 int main(int argc, char **argv)
 {
@@ -25,6 +16,7 @@ int main(int argc, char **argv)
   {
     std::string pheeno_number = cml_parser("-n");
     pheeno_name = "/pheeno_" + pheeno_number;
+    std::cout << pheeno_name << std::endl;
   }
   else
   {
@@ -34,11 +26,8 @@ int main(int argc, char **argv)
   // Initializing ROS node
   ros::init(argc, argv, "random_walk_node");
 
-  // Created a node handle object
-  ros::NodeHandle node_obj;
-
-  // Create Publishers and Subscribers
-  ros::Publisher pub_cmd_vel = node_obj.advertise<geometry_msgs::Twist>(pheeno_name + "/cmd_vel", 100);
+  // Create PheenoRobot object
+  PheenoRobot pheeno = PheenoRobot(pheeno_name);
 
   // ROS Rate loop
   ros::Rate loop_rate(10);
@@ -46,7 +35,8 @@ int main(int argc, char **argv)
   // Variables before loop
   double saved_time = ros::Time::now().toSec();
   double current_duration;
-  double turn_direction = randomTurn();
+  double angular = 0.07;
+  double turn_direction = pheeno.randomTurn(angular);
   geometry_msgs::Twist cmd_vel_msg;
 
   while (ros::ok())
@@ -65,13 +55,12 @@ int main(int argc, char **argv)
     } else {
       // Reset Variables
       saved_time = ros::Time::now().toSec();
-      turn_direction = randomTurn();
+      turn_direction = pheeno.randomTurn(angular);
     }
 
     // Publish, Spin, and Sleep
-    pub_cmd_vel.publish(cmd_vel_msg);
+    pheeno.publish(cmd_vel_msg);
     ros::spinOnce();
     loop_rate.sleep();
-
   }
 }
