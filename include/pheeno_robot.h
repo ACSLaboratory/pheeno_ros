@@ -5,6 +5,7 @@
 #include "std_msgs/Float32.h"
 #include "std_msgs/Int16.h"
 #include "geometry_msgs/Twist.h"
+#include "geometry_msgs/Vector3.h"
 #include "nav_msgs/Odometry.h"
 #include <vector>
 #include <complex>
@@ -28,6 +29,10 @@ public:
   std_msgs::Float32 ir_sensor_c_left;
   std_msgs::Int16 ir_sensor_bottom;
   std::vector<double> ir_sensor_values;
+  std::vector<int> encoder_values;
+  std::vector<double> magnetometer_values;
+  std::vector<double> gyroscope_values;
+  std::vector<double> accelerometer_values;
 
   // Odometry Messages
   nav_msgs::Odometry odom_msg;
@@ -70,6 +75,13 @@ private:
   ros::Subscriber sub_ir_bottom_;
   ros::Subscriber sub_pheeno_cam_;
   ros::Subscriber sub_odom_;
+  ros::Subscriber sub_encoder_LL_;
+  ros::Subscriber sub_encoder_LR_;
+  ros::Subscriber sub_encoder_RL_;
+  ros::Subscriber sub_encoder_RR_;
+  ros::Subscriber sub_magnetometer_;
+  ros::Subscriber sub_gyroscope_;
+  ros::Subscriber sub_accelerometer_;
 
   // Private Publishers
   ros::Publisher pub_cmd_vel_;
@@ -85,6 +97,17 @@ private:
 
   // Odom Callback Methods
   void odomCallback(const nav_msgs::Odometry::ConstPtr& msg);
+
+  // Encoder Callback Methods
+  void encoderLLCallback(const std_msgs::Int16::ConstPtr& msg);
+  void encoderLRCallback(const std_msgs::Int16::ConstPtr& msg);
+  void encoderRLCallback(const std_msgs::Int16::ConstPtr& msg);
+  void encoderRRCallback(const std_msgs::Int16::ConstPtr& msg);
+
+  // Other Sensor Callback Methods
+  void magnetometerCallback(const geometry_msgs::Vector3::ConstPtr& msg);
+  void gyroscopeCallback(const geometry_msgs::Vector3::ConstPtr& msg);
+  void accelerometerCallback(const geometry_msgs::Vector3::ConstPtr& msg);
 
   // Camera Callback Modules
   void piCamCallback();

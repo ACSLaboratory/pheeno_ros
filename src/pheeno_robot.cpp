@@ -28,21 +28,26 @@ PheenoRobot::PheenoRobot(std::string pheeno_name)
     ir_sensor_values.push_back(0);
   }
 
-  // Create Odom vector upon construction. (3 placements)
+  // Create sensor vector upon construction. (3 placements)
   for (int i = 0; i < 3; i++)
   {
     odom_pose_position.push_back(0);
     odom_twist_linear.push_back(0);
     odom_twist_angular.push_back(0);
+
+    magnetometer_values.push_back(0);
+    gyroscope_values.push_back(0);
+    accelerometer_values.push_back(0);
   }
 
-  // Create Odom vector upon construction. (4 placements)
+  // Create sensor vector upon construction. (4 placements)
   for (int i = 0; i < 4; i++)
   {
     odom_pose_orient.push_back(0);
+    encoder_values.push_back(0);
   }
 
-  // Instantiate the Publishers and Subscribers
+  // IR Sensor Subscribers
   sub_ir_center_ = nh_.subscribe(pheeno_name + "/scan_center", 10,
                                  &PheenoRobot::irSensorCenterCallback, this);
   sub_ir_right_ = nh_.subscribe(pheeno_name + "/scan_right", 10,
@@ -58,9 +63,29 @@ PheenoRobot::PheenoRobot(std::string pheeno_name)
   sub_ir_bottom_ = nh_.subscribe(pheeno_name + "/scan_bottom", 10,
                                  &PheenoRobot::irSensorBottomCallback, this);
 
+  // Odom Subscriber
   sub_odom_ = nh_.subscribe(pheeno_name + "/odom", 1,
                             &PheenoRobot::odomCallback, this);
 
+  // Encoder Subscribers
+  sub_encoder_LL_ = nh_.subscribe(pheeno_name + "/encoder_LL", 10,
+                                  &PheenoRobot::encoderLLCallback, this);
+  sub_encoder_LR_ = nh_.subscribe(pheeno_name + "/encoder_LR", 10,
+                                  &PheenoRobot::encoderLRCallback, this);
+  sub_encoder_RL_ = nh_.subscribe(pheeno_name + "/encoder_RL", 10,
+                                  &PheenoRobot::encoderRLCallback, this);
+  sub_encoder_RR_ = nh_.subscribe(pheeno_name + "/encoder_RR", 10,
+                                  &PheenoRobot::encoderRRCallback, this);
+
+  // Magnetometer, Gyroscope, Accelerometer Subscriber
+  sub_magnetometer_ = nh_.subscribe(pheeno_name + "/magnetometer", 10,
+                                    &PheenoRobot::magnetometerCallback, this);
+  sub_gyroscope_ = nh_.subscribe(pheeno_name + "/gyroscope", 10,
+                                 &PheenoRobot::gyroscopeCallback, this);
+  sub_accelerometer_ = nh_.subscribe(pheeno_name + "/accelerometer", 10,
+                                     &PheenoRobot::accelerometerCallback, this);
+
+  // cmd_vel Publisher
   pub_cmd_vel_ = nh_.advertise<geometry_msgs::Twist>(pheeno_name + "/cmd_vel", 100);
 
 }
@@ -197,6 +222,68 @@ void PheenoRobot::odomCallback(const nav_msgs::Odometry::ConstPtr& msg)
   odom_twist_angular[0] = static_cast<double>(msg->twist.twist.angular.x);
   odom_twist_angular[1] = static_cast<double>(msg->twist.twist.angular.y);
   odom_twist_angular[2] = static_cast<double>(msg->twist.twist.angular.z);
+}
+
+/*
+ * Callback function for the Encoder LL ROS subscriber.
+ */
+void PheenoRobot::encoderLLCallback(const std_msgs::Int16::ConstPtr& msg)
+{
+  encoder_values[0] = static_cast<int>(msg->data);
+}
+
+/*
+ * Callback function for the Encoder LR ROS subscriber.
+ */
+void PheenoRobot::encoderLRCallback(const std_msgs::Int16::ConstPtr& msg)
+{
+  encoder_values[1] = static_cast<int>(msg->data);
+}
+
+/*
+ * Callback function for the Encoder RL ROS subscriber.
+ */
+void PheenoRobot::encoderRLCallback(const std_msgs::Int16::ConstPtr& msg)
+{
+  encoder_values[2] = static_cast<int>(msg->data);
+}
+
+/*
+ * Callback function for the Encoder RR ROS subscriber.
+ */
+void PheenoRobot::encoderRRCallback(const std_msgs::Int16::ConstPtr& msg)
+{
+  encoder_values[3] = static_cast<int>(msg->data);
+}
+
+/*
+ * Callback function for the Magnetometer sensor ROS subscriber.
+ */
+void PheenoRobot::magnetometerCallback(const geometry_msgs::Vector3::ConstPtr& msg)
+{
+  magnetometer_values[0] = static_cast<double>(msg->x);
+  magnetometer_values[1] = static_cast<double>(msg->y);
+  magnetometer_values[2] = static_cast<double>(msg->z);
+}
+
+/*
+ * Callback function for the Gyroscope sensor ROS subscriber.
+ */
+void PheenoRobot::gyroscopeCallback(const geometry_msgs::Vector3::ConstPtr& msg)
+{
+  gyroscope_values[0] = static_cast<double>(msg->x);
+  gyroscope_values[1] = static_cast<double>(msg->y);
+  gyroscope_values[2] = static_cast<double>(msg->z);
+}
+
+/*
+ * Callback function for the Accelerometer sensor ROS subscriber.
+ */
+void PheenoRobot::accelerometerCallback(const geometry_msgs::Vector3::ConstPtr& msg)
+{
+  accelerometer_values[0] = static_cast<double>(msg->x);
+  accelerometer_values[1] = static_cast<double>(msg->y);
+  accelerometer_values[2] = static_cast<double>(msg->z);
 }
 
 /*
