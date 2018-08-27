@@ -1,16 +1,34 @@
 #!/usr/bin/env python
+"""
+Pi Camera ROS Node
 
+Written by: Zahi Kakish (zmk5)
+License: BSD 3-Clause
+
+"""
+import sys
 import rospy
 import picamera
 import picamera.array
-import cv2
-import sys
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-from cv_bridge import CvBridgeError
 
 
 def main():
+    """
+    Sample Pi Camera ROS Node
+
+    This simple ROS node script takes images from a Pi Camera attached to a
+    Pheeno's Raspberry Pi (or other Robot that uses the Pi Camera) and
+    Publishes the images as a ROS topic.
+
+    NOTE: This method of publishing images is very computationally intensive,
+    especially on a Raspberry Pi. Use when needed or try to do image processing
+    within a node and only publish the results. For example, checking if a
+    color is located within an image and then publishing True or False instead
+    of the image.
+
+    """
     # Select camera for use.
     with picamera.PiCamera() as camera:
         with picamera.array.PiRGBArray(camera) as stream:
@@ -22,8 +40,8 @@ def main():
             # Create Publisher to publish pi_cam images.
             sys.stdout.write("Creating Publisher...")
             pub = rospy.Publisher("/pi_cam/image_raw",
-                                    Image,
-                                    queue_size=307200)
+                                  Image,
+                                  queue_size=307200)
             sys.stdout.write("done!\n")
 
             # Other important variables
@@ -52,7 +70,7 @@ def main():
 
 if __name__ == "__main__":
     try:
-       main()
+        main()
 
     except rospy.ROSInterruptException:
         pass
