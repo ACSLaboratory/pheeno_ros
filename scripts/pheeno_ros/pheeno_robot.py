@@ -39,21 +39,21 @@ class PheenoRobot(object):
     angular : int/float
         Initial angular velocity of the robot.
     obstacle_velocity : int/float
-        Velocity for obstacle avoidance. In terms of angular velocity, may be faster or
-        slower than the current value of angular velocity.
+        Velocity for obstacle avoidance. In terms of angular velocity, may be
+        faster or slower than the current value of angular velocity.
 
     Attributes
     ----------
     pheeno_id : str
-        The ID of the pheeno that is used as the namespace for pheeno ROS publishers and
-        subscribers.
+        The ID of the pheeno that is used as the namespace for pheeno ROS
+        publishers and subscribers.
     linear_velocity : float (default 0)
         The linear velocity of the robot.
     angular_velocity : float (default 0)
         The angular velocity of the robot.
     obstacle_velocity : float (default 0.5)
-        If a robot approaces an obstacle, this is the angular velocity used for obstacle
-        avoidance.
+        If a robot approaces an obstacle, this is the angular velocity used for
+        obstacle avoidance.
 
     Methods
     -------
@@ -92,7 +92,8 @@ class PheenoRobot(object):
     >>> pheeno = PheenoRobot("01", linear_vel=0.8, angular_vel=0)
 
     """
-    def __init__(self, robot_id, linear_velocity=0, angular_velocity=0, obstacle_velocity=0.5):
+    def __init__(self, robot_id, linear_velocity=0, angular_velocity=0,
+                 obstacle_velocity=0.5):
         if robot_id == "":
             self.pheeno_id = robot_id
 
@@ -296,11 +297,12 @@ class PheenoRobot(object):
         """
         Obstacle avoidance algorithm
 
-        Given a desired linear and angular velocity, the algorithm will set those
-        values as the robots linear and angular velocity if no obstacle is in
-        the way. If there is, the linear velocity of the robot is set to zero,
-        and the angular velocity is set of a positive or negative version of the
-        obstacle velocity robot attribute depending on certain conditions.
+        Given a desired linear and angular velocity, the algorithm will set
+        those values as the robots linear and angular velocity if no obstacle
+        is in the way. If there is, the linear velocity of the robot is set to
+        zero, and the angular velocity is set of a positive or negative version
+        of the obstacle velocity robot attribute depending on certain
+        conditions.
 
         Arguments
         ---------
@@ -321,11 +323,12 @@ class PheenoRobot(object):
         >>> desired_angular = 0  # b/c we don't want it to turn
         >>> pheeno.avoid_obstacle(ir_limit, desired_linear, desired_angular)
 
-        If no obstacle is in the path of the robot, the attributes `linear_velocity`
-        and `angular_velocity` are set to 0.7 and 0, respectively. If not, the
-        values are set based on the internal logic of the algorithm. Assign these
-        values to the proper places in a `geometry_msg.Twist()` msg and call the
-        `publish_cmd_vel(twist_msg)` method to enact the changes.
+        If no obstacle is in the path of the robot, the attributes
+        `linear_velocity` and `angular_velocity` are set to 0.7 and 0,
+        respectively. If not, the values are set based on the internal logic of
+        the algorithm. Assign these values to the proper places in a
+        `geometry_msg.Twist()` msg and call the `publish_cmd_vel(twist_msg)`
+        method to enact the changes.
 
 
         """
