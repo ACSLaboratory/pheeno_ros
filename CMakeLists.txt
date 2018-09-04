@@ -6,8 +6,6 @@ project(pheeno_ros)
 # find_package(OpenCV REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
-  actionlib
-  actionlib_msgs
   geometry_msgs
   roscpp
   rospy
