@@ -3,7 +3,7 @@
 #include "std_msgs/Int16.h"
 #include "geometry_msgs/Twist.h"
 #include "nav_msgs/Odometry.h"
-#include "pheeno_robot.h"
+#include "pheeno_ros/pheeno_robot.h"
 #include <vector>
 #include <complex>
 #include <cstdlib>

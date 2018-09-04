@@ -1,8 +1,8 @@
 #include "ros/ros.h"
 #include "std_msgs/Float32.h"
 #include "geometry_msgs/Twist.h"
-#include "command_line_parser.h"
-#include "pheeno_robot.h"
+#include "pheeno_ros/command_line_parser.h"
+#include "pheeno_ros/pheeno_robot.h"
 
 int main(int argc, char **argv) {
   // Initial Variables
