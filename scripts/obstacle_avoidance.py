@@ -9,7 +9,7 @@ License: BSD 3-Clause
 import argparse
 import rospy
 from geometry_msgs.msg import Twist
-from pheeno_robot import PheenoRobot
+from pheeno_ros.pheeno_robot import PheenoRobot
 
 
 def get_args():
