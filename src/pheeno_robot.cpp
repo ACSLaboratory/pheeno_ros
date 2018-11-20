@@ -20,31 +20,31 @@
 PheenoRobot::PheenoRobot(std::string pheeno_name)
 {
   ROS_INFO("Creating Pheeno Robot.");
-  pheeno_namespace_id = pheeno_name;
+  pheeno_namespace_id_ = pheeno_name;
 
   // Create IR sensor vector upon construction. (6 placements)
   for (int i = 0; i < 6; i++)
   {
-    ir_sensor_values.push_back(0);
+    ir_sensor_values_.push_back(0);
   }
 
   // Create sensor vector upon construction. (3 placements)
   for (int i = 0; i < 3; i++)
   {
-    odom_pose_position.push_back(0);
-    odom_twist_linear.push_back(0);
-    odom_twist_angular.push_back(0);
+    odom_pose_position_.push_back(0);
+    odom_twist_linear_.push_back(0);
+    odom_twist_angular_.push_back(0);
 
-    magnetometer_values.push_back(0);
-    gyroscope_values.push_back(0);
-    accelerometer_values.push_back(0);
+    magnetometer_values_.push_back(0);
+    gyroscope_values_.push_back(0);
+    accelerometer_values_.push_back(0);
   }
 
   // Create sensor vector upon construction. (4 placements)
   for (int i = 0; i < 4; i++)
   {
-    odom_pose_orient.push_back(0);
-    encoder_values.push_back(0);
+    odom_pose_orient_.push_back(0);
+    encoder_values_.push_back(0);
   }
 
   // IR Sensor Subscribers
@@ -106,8 +106,8 @@ void PheenoRobot::publish(geometry_msgs::Twist velocity)
  */
 void PheenoRobot::irSensorCenterCallback(const std_msgs::Float32::ConstPtr& msg)
 {
-  ir_sensor_center.data = msg->data;
-  ir_sensor_values[0] = static_cast<double>(msg->data);
+  ir_sensor_center_.data = msg->data;
+  ir_sensor_values_[0] = static_cast<double>(msg->data);
 }
 
 /*
@@ -115,8 +115,8 @@ void PheenoRobot::irSensorCenterCallback(const std_msgs::Float32::ConstPtr& msg)
  */
 void PheenoRobot::irSensorBackCallback(const std_msgs::Float32::ConstPtr& msg)
 {
-  ir_sensor_back.data = msg->data;
-  ir_sensor_values[1] = static_cast<double>(msg->data);
+  ir_sensor_back_.data = msg->data;
+  ir_sensor_values_[1] = static_cast<double>(msg->data);
 }
 
 /*
@@ -124,8 +124,8 @@ void PheenoRobot::irSensorBackCallback(const std_msgs::Float32::ConstPtr& msg)
  */
 void PheenoRobot::irSensorRightCallback(const std_msgs::Float32::ConstPtr& msg)
 {
-  ir_sensor_right.data = msg->data;
-  ir_sensor_values[2] = static_cast<double>(msg->data);
+  ir_sensor_right_.data = msg->data;
+  ir_sensor_values_[2] = static_cast<double>(msg->data);
 }
 
 /*
@@ -133,8 +133,8 @@ void PheenoRobot::irSensorRightCallback(const std_msgs::Float32::ConstPtr& msg)
  */
 void PheenoRobot::irSensorLeftCallback(const std_msgs::Float32::ConstPtr& msg)
 {
-  ir_sensor_left.data = msg->data;
-  ir_sensor_values[3] = static_cast<double>(msg->data);
+  ir_sensor_left_.data = msg->data;
+  ir_sensor_values_[3] = static_cast<double>(msg->data);
 }
 
 /*
@@ -142,8 +142,8 @@ void PheenoRobot::irSensorLeftCallback(const std_msgs::Float32::ConstPtr& msg)
  */
 void PheenoRobot::irSensorCRightCallback(const std_msgs::Float32::ConstPtr& msg)
 {
-  ir_sensor_c_right.data = msg->data;
-  ir_sensor_values[4] = static_cast<double>(msg->data);
+  ir_sensor_c_right_.data = msg->data;
+  ir_sensor_values_[4] = static_cast<double>(msg->data);
 }
 
 /*
@@ -151,8 +151,8 @@ void PheenoRobot::irSensorCRightCallback(const std_msgs::Float32::ConstPtr& msg)
  */
 void PheenoRobot::irSensorCLeftCallback(const std_msgs::Float32::ConstPtr& msg)
 {
-  ir_sensor_c_left.data = msg->data;
-  ir_sensor_values[5] = static_cast<double>(msg->data);
+  ir_sensor_c_left_.data = msg->data;
+  ir_sensor_values_[5] = static_cast<double>(msg->data);
 }
 
 /*
@@ -164,7 +164,7 @@ bool PheenoRobot::irSensorTriggered(float sensor_limit)
   int count = 0;
   for (int i = 0; i < 7; i++)
   {
-    if (ir_sensor_values[i] < sensor_limit)
+    if (ir_sensor_values_[i] < sensor_limit)
     {
       count += 1;
     }
@@ -188,11 +188,11 @@ void PheenoRobot::irSensorBottomCallback(const std_msgs::Int16::ConstPtr& msg)
 {
   if (msg->data < 1600)
   {
-    ir_sensor_bottom.data = 0;  // Black on the bottom
+    ir_sensor_bottom_.data = 0;  // Black on the bottom
   }
   else
   {
-    ir_sensor_bottom.data = 1;  // White on the bottom
+    ir_sensor_bottom_.data = 1;  // White on the bottom
   }
 }
 
@@ -207,21 +207,21 @@ void PheenoRobot::irSensorBottomCallback(const std_msgs::Int16::ConstPtr& msg)
 void PheenoRobot::odomCallback(const nav_msgs::Odometry::ConstPtr& msg)
 {
   // Assign values to appropriate pose information.
-  odom_pose_position[0] = static_cast<double>(msg->pose.pose.position.x);
-  odom_pose_position[1] = static_cast<double>(msg->pose.pose.position.y);
-  odom_pose_position[2] = static_cast<double>(msg->pose.pose.position.z);
-  odom_pose_orient[0] = static_cast<double>(msg->pose.pose.orientation.x);
-  odom_pose_orient[1] = static_cast<double>(msg->pose.pose.orientation.y);
-  odom_pose_orient[2] = static_cast<double>(msg->pose.pose.orientation.z);
-  odom_pose_orient[3] = static_cast<double>(msg->pose.pose.orientation.w);
+  odom_pose_position_[0] = static_cast<double>(msg->pose.pose.position.x);
+  odom_pose_position_[1] = static_cast<double>(msg->pose.pose.position.y);
+  odom_pose_position_[2] = static_cast<double>(msg->pose.pose.position.z);
+  odom_pose_orient_[0] = static_cast<double>(msg->pose.pose.orientation.x);
+  odom_pose_orient_[1] = static_cast<double>(msg->pose.pose.orientation.y);
+  odom_pose_orient_[2] = static_cast<double>(msg->pose.pose.orientation.z);
+  odom_pose_orient_[3] = static_cast<double>(msg->pose.pose.orientation.w);
 
   // Assign values to appropriate twist information.
-  odom_twist_linear[0] = static_cast<double>(msg->twist.twist.linear.x);
-  odom_twist_linear[1] = static_cast<double>(msg->twist.twist.linear.y);
-  odom_twist_linear[2] = static_cast<double>(msg->twist.twist.linear.z);
-  odom_twist_angular[0] = static_cast<double>(msg->twist.twist.angular.x);
-  odom_twist_angular[1] = static_cast<double>(msg->twist.twist.angular.y);
-  odom_twist_angular[2] = static_cast<double>(msg->twist.twist.angular.z);
+  odom_twist_linear_[0] = static_cast<double>(msg->twist.twist.linear.x);
+  odom_twist_linear_[1] = static_cast<double>(msg->twist.twist.linear.y);
+  odom_twist_linear_[2] = static_cast<double>(msg->twist.twist.linear.z);
+  odom_twist_angular_[0] = static_cast<double>(msg->twist.twist.angular.x);
+  odom_twist_angular_[1] = static_cast<double>(msg->twist.twist.angular.y);
+  odom_twist_angular_[2] = static_cast<double>(msg->twist.twist.angular.z);
 }
 
 /*
@@ -229,7 +229,7 @@ void PheenoRobot::odomCallback(const nav_msgs::Odometry::ConstPtr& msg)
  */
 void PheenoRobot::encoderLLCallback(const std_msgs::Int16::ConstPtr& msg)
 {
-  encoder_values[0] = static_cast<int>(msg->data);
+  encoder_values_[0] = static_cast<int>(msg->data);
 }
 
 /*
@@ -237,7 +237,7 @@ void PheenoRobot::encoderLLCallback(const std_msgs::Int16::ConstPtr& msg)
  */
 void PheenoRobot::encoderLRCallback(const std_msgs::Int16::ConstPtr& msg)
 {
-  encoder_values[1] = static_cast<int>(msg->data);
+  encoder_values_[1] = static_cast<int>(msg->data);
 }
 
 /*
@@ -245,7 +245,7 @@ void PheenoRobot::encoderLRCallback(const std_msgs::Int16::ConstPtr& msg)
  */
 void PheenoRobot::encoderRLCallback(const std_msgs::Int16::ConstPtr& msg)
 {
-  encoder_values[2] = static_cast<int>(msg->data);
+  encoder_values_[2] = static_cast<int>(msg->data);
 }
 
 /*
@@ -253,7 +253,7 @@ void PheenoRobot::encoderRLCallback(const std_msgs::Int16::ConstPtr& msg)
  */
 void PheenoRobot::encoderRRCallback(const std_msgs::Int16::ConstPtr& msg)
 {
-  encoder_values[3] = static_cast<int>(msg->data);
+  encoder_values_[3] = static_cast<int>(msg->data);
 }
 
 /*
@@ -261,9 +261,9 @@ void PheenoRobot::encoderRRCallback(const std_msgs::Int16::ConstPtr& msg)
  */
 void PheenoRobot::magnetometerCallback(const geometry_msgs::Vector3::ConstPtr& msg)
 {
-  magnetometer_values[0] = static_cast<double>(msg->x);
-  magnetometer_values[1] = static_cast<double>(msg->y);
-  magnetometer_values[2] = static_cast<double>(msg->z);
+  magnetometer_values_[0] = static_cast<double>(msg->x);
+  magnetometer_values_[1] = static_cast<double>(msg->y);
+  magnetometer_values_[2] = static_cast<double>(msg->z);
 }
 
 /*
@@ -271,9 +271,9 @@ void PheenoRobot::magnetometerCallback(const geometry_msgs::Vector3::ConstPtr& m
  */
 void PheenoRobot::gyroscopeCallback(const geometry_msgs::Vector3::ConstPtr& msg)
 {
-  gyroscope_values[0] = static_cast<double>(msg->x);
-  gyroscope_values[1] = static_cast<double>(msg->y);
-  gyroscope_values[2] = static_cast<double>(msg->z);
+  gyroscope_values_[0] = static_cast<double>(msg->x);
+  gyroscope_values_[1] = static_cast<double>(msg->y);
+  gyroscope_values_[2] = static_cast<double>(msg->z);
 }
 
 /*
@@ -281,9 +281,9 @@ void PheenoRobot::gyroscopeCallback(const geometry_msgs::Vector3::ConstPtr& msg)
  */
 void PheenoRobot::accelerometerCallback(const geometry_msgs::Vector3::ConstPtr& msg)
 {
-  accelerometer_values[0] = static_cast<double>(msg->x);
-  accelerometer_values[1] = static_cast<double>(msg->y);
-  accelerometer_values[2] = static_cast<double>(msg->z);
+  accelerometer_values_[0] = static_cast<double>(msg->x);
+  accelerometer_values_[1] = static_cast<double>(msg->y);
+  accelerometer_values_[2] = static_cast<double>(msg->z);
 }
 
 /*
@@ -316,16 +316,16 @@ double PheenoRobot::randomTurn(float angular)
  */
 void PheenoRobot::avoidObstaclesLinear(double& linear, double& angular, float angular_velocity, float linear_velocity, double range_to_avoid)
 {
-  if (ir_sensor_values[0] < range_to_avoid)
+  if (ir_sensor_values_[0] < range_to_avoid)
   {
-    if (std::abs((ir_sensor_values[2] - ir_sensor_values[3])) < 5.0 ||
-        (ir_sensor_values[2] > range_to_avoid && ir_sensor_values[3] > range_to_avoid))
+    if (std::abs((ir_sensor_values_[2] - ir_sensor_values_[3])) < 5.0 ||
+        (ir_sensor_values_[2] > range_to_avoid && ir_sensor_values_[3] > range_to_avoid))
     {
       linear = 0.0;
       angular = randomTurn();
     }
 
-    if (ir_sensor_values[2] < ir_sensor_values[3])
+    if (ir_sensor_values_[2] < ir_sensor_values_[3])
     {
       linear = 0.0;
       angular = -1 * angular_velocity;  // Turn Left
@@ -336,27 +336,27 @@ void PheenoRobot::avoidObstaclesLinear(double& linear, double& angular, float an
       angular = angular_velocity;  // Turn Right
     }
   }
-  else if (ir_sensor_values[4] < range_to_avoid && ir_sensor_values[5] < range_to_avoid)
+  else if (ir_sensor_values_[4] < range_to_avoid && ir_sensor_values_[5] < range_to_avoid)
   {
     linear = 0.0;
     angular = randomTurn();
   }
-  else if (ir_sensor_values[4] < range_to_avoid)
+  else if (ir_sensor_values_[4] < range_to_avoid)
   {
     linear = 0.0;
     angular = -1 * angular_velocity;  // Turn Left
   }
-  else if (ir_sensor_values[5] < range_to_avoid)
+  else if (ir_sensor_values_[5] < range_to_avoid)
   {
     linear = 0.0;
     angular = angular_velocity;  // Turn Right
   }
-  else if (ir_sensor_values[2] < range_to_avoid)
+  else if (ir_sensor_values_[2] < range_to_avoid)
   {
     linear = 0.0;
     angular = -1 * angular_velocity;  // Turn Left
   }
-  else if (ir_sensor_values[3] < range_to_avoid)
+  else if (ir_sensor_values_[3] < range_to_avoid)
   {
     linear = 0.0;
     angular = angular_velocity;  // Turn Right
@@ -379,15 +379,15 @@ void PheenoRobot::avoidObstaclesLinear(double& linear, double& angular, float an
  */
 void PheenoRobot::avoidObstaclesAngular(double& angular, double& random_turn_value, float angular_velocity, double range_to_avoid)
 {
-  if (ir_sensor_values[0] < range_to_avoid)
+  if (ir_sensor_values_[0] < range_to_avoid)
   {
-    if (std::abs((ir_sensor_values[2] - ir_sensor_values[3])) < 5.0 ||
-        (ir_sensor_values[2] > range_to_avoid && ir_sensor_values[3] > range_to_avoid))
+    if (std::abs((ir_sensor_values_[2] - ir_sensor_values_[3])) < 5.0 ||
+        (ir_sensor_values_[2] > range_to_avoid && ir_sensor_values_[3] > range_to_avoid))
     {
       angular = randomTurn();
     }
 
-    if (ir_sensor_values[2] < ir_sensor_values[3])
+    if (ir_sensor_values_[2] < ir_sensor_values_[3])
     {
       angular = -1 * angular_velocity;  // Turn Left
     }
@@ -396,23 +396,23 @@ void PheenoRobot::avoidObstaclesAngular(double& angular, double& random_turn_val
       angular = angular_velocity;  // Turn Right
     }
   }
-  else if (ir_sensor_values[4] < range_to_avoid && ir_sensor_values[5] < range_to_avoid)
+  else if (ir_sensor_values_[4] < range_to_avoid && ir_sensor_values_[5] < range_to_avoid)
   {
     angular = randomTurn();
   }
-  else if (ir_sensor_values[4] < range_to_avoid)
+  else if (ir_sensor_values_[4] < range_to_avoid)
   {
     angular = -1 * angular_velocity;  // Turn Left
   }
-  else if (ir_sensor_values[5] < range_to_avoid)
+  else if (ir_sensor_values_[5] < range_to_avoid)
   {
     angular = angular_velocity;  // Turn Right
   }
-  else if (ir_sensor_values[2] < range_to_avoid)
+  else if (ir_sensor_values_[2] < range_to_avoid)
   {
     angular = -1 * angular_velocity;  // Turn Left
   }
-  else if (ir_sensor_values[3] < range_to_avoid)
+  else if (ir_sensor_values_[3] < range_to_avoid)
   {
     angular = angular_velocity;  // Turn Right
   }

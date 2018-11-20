@@ -18,31 +18,31 @@ public:
   PheenoRobot(std::string pheeno_name);
 
   // Pheeno name
-  std::string pheeno_namespace_id;
+  std::string pheeno_namespace_id_;
 
   // Sensor Messages
-  std_msgs::Float32 ir_sensor_center;
-  std_msgs::Float32 ir_sensor_back;
-  std_msgs::Float32 ir_sensor_right;
-  std_msgs::Float32 ir_sensor_left;
-  std_msgs::Float32 ir_sensor_c_right;
-  std_msgs::Float32 ir_sensor_c_left;
-  std_msgs::Int16 ir_sensor_bottom;
-  std::vector<double> ir_sensor_values;
-  std::vector<int> encoder_values;
-  std::vector<double> magnetometer_values;
-  std::vector<double> gyroscope_values;
-  std::vector<double> accelerometer_values;
+  std_msgs::Float32 ir_sensor_center_;
+  std_msgs::Float32 ir_sensor_back_;
+  std_msgs::Float32 ir_sensor_right_;
+  std_msgs::Float32 ir_sensor_left_;
+  std_msgs::Float32 ir_sensor_c_right_;
+  std_msgs::Float32 ir_sensor_c_left_;
+  std_msgs::Int16 ir_sensor_bottom_;
+  std::vector<double> ir_sensor_values_;
+  std::vector<int> encoder_values_;
+  std::vector<double> magnetometer_values_;
+  std::vector<double> gyroscope_values_;
+  std::vector<double> accelerometer_values_;
 
   // Odometry Messages
-  nav_msgs::Odometry odom_msg;
-  std::vector<double> odom_pose_position;
-  std::vector<double> odom_pose_orient;
-  std::vector<double> odom_twist_linear;
-  std::vector<double> odom_twist_angular;
+  nav_msgs::Odometry odom_msg_;
+  std::vector<double> odom_pose_position_;
+  std::vector<double> odom_pose_orient_;
+  std::vector<double> odom_twist_linear_;
+  std::vector<double> odom_twist_angular_;
 
   // Camera Messages
-  std::vector<bool> color_state_facing;
+  std::vector<bool> color_state_facing_;
 
   // Public Sensor Methods
   bool irSensorTriggered(float sensor_limits);
