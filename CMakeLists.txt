@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(pheeno_ros)
 
+## Compile as C++11, supported in ROS Kinetic and newer
+add_compile_options(-std=c++11)
+
 #### Uncomment these two to use pi cam with C++ ####
 # find_package(raspicam REQUIRED)
 # find_package(OpenCV REQUIRED)

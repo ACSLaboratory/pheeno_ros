@@ -1,5 +1,5 @@
-#ifndef GUARD_PHEENO_ROBOT_H
-#define GUARD_PHEENO_ROBOT_H
+#ifndef PHEENO_ROS_PHEENO_ROBOT_H
+#define PHEENO_ROS_PHEENO_ROBOT_H
 
 #include "ros/ros.h"
 #include "std_msgs/Float32.h"
@@ -11,7 +11,29 @@
 #include <complex>
 #include <cstdlib>
 
-class PheenoRobot {
+namespace Pheeno
+{
+  enum IR
+  {
+    CENTER,
+    BACK,
+    RIGHT,
+    LEFT,
+    CRIGHT,
+    CLEFT
+  };
+  
+  enum ENCODER
+  {
+    LL,
+    LR,
+    RL,
+    RR
+  };
+}
+
+class PheenoRobot
+{
 
 public:
   // Constructor
@@ -28,11 +50,11 @@ public:
   std_msgs::Float32 ir_sensor_c_right_;
   std_msgs::Float32 ir_sensor_c_left_;
   std_msgs::Int16 ir_sensor_bottom_;
-  std::vector<double> ir_sensor_values_;
-  std::vector<int> encoder_values_;
-  std::vector<double> magnetometer_values_;
-  std::vector<double> gyroscope_values_;
-  std::vector<double> accelerometer_values_;
+  std::vector<double> ir_sensor_vals_;
+  std::vector<int> encoder_vals_;
+  std::vector<double> magnetometer_vals_;
+  std::vector<double> gyroscope_vals_;
+  std::vector<double> accelerometer_vals_;
 
   // Odometry Messages
   nav_msgs::Odometry odom_msg_;
@@ -113,4 +135,4 @@ private:
   void piCamCallback();
 };
 
-#endif //GUARD_PHEENO_ROBOT_H
+#endif // PHEENO_ROS_PHEENO_ROBOT_H
