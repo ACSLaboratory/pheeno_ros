@@ -47,6 +47,11 @@ PheenoRobot::PheenoRobot(std::string pheeno_name)
     encoder_vals_.push_back(0);
   }
 
+  // Use rosparams to fill defaults.
+  nh_.getParam("/pheeno_robot/range_to_avoid", range_to_avoid_);
+  nh_.getParam("/pheeno_robot/linear_velocity", linear_vel_);
+  nh_.getParam("/pheeno_robot/angular_velocity", angular_vel_);
+
   // IR Sensor Subscribers
   sub_ir_center_ = nh_.subscribe(pheeno_name + "/scan_center", 10,
                                  &PheenoRobot::irSensorCenterCallback, this);

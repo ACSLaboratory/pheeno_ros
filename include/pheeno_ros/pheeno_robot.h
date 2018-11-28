@@ -22,7 +22,7 @@ namespace Pheeno
     CRIGHT,
     CLEFT
   };
-  
+
   enum ENCODER
   {
     LL,
@@ -65,6 +65,11 @@ public:
 
   // Camera Messages
   std::vector<bool> color_state_facing_;
+
+  // Default values for Pheeno.
+  double range_to_avoid_;
+  float linear_vel_;
+  float angular_vel_;
 
   // Public Sensor Methods
   bool irSensorTriggered(float sensor_limits);
