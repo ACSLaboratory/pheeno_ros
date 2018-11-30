@@ -313,7 +313,8 @@ double PheenoRobot::randomTurn(float angular)
  * the references to linear and angular are set to specific values to make the
  * robot avoid the obstacle.
  */
-void PheenoRobot::avoidObstaclesLinear(double& linear, double& angular, float angular_velocity, float linear_velocity, double range_to_avoid)
+void PheenoRobot::avoidObstaclesLinear(double& linear, double& angular, float angular_velocity, float linear_velocity,
+                                       double range_to_avoid)
 {
   if (ir_sensor_vals_[Pheeno::IR::CENTER] < range_to_avoid)
   {
@@ -376,7 +377,8 @@ void PheenoRobot::avoidObstaclesLinear(double& linear, double& angular, float an
  * the obstacle. Compared to the linear version of this callback member
  * function, this function only modifies the angular reference.
  */
-void PheenoRobot::avoidObstaclesAngular(double& angular, double& random_turn_value, float angular_velocity, double range_to_avoid)
+void PheenoRobot::avoidObstaclesAngular(double& angular, double& random_turn_value, float angular_velocity,
+                                        double range_to_avoid)
 {
   if (ir_sensor_vals_[Pheeno::IR::CENTER] < range_to_avoid)
   {

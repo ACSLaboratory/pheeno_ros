@@ -44,15 +44,20 @@ int main(int argc, char **argv)
     // Find current duration of motion.
     current_duration = ros::Time::now().toSec() - saved_time;
 
-    if (current_duration <= 10.0) {
+    if (current_duration <= 10.0)
+    {
       cmd_vel_msg.linear.x = 0.0;
       cmd_vel_msg.angular.z = turn_direction;
 
-    } else if (current_duration < 20.0) {
+    }
+    else if (current_duration < 20.0)
+    {
       cmd_vel_msg.linear.x = 0.05;
       cmd_vel_msg.angular.z = 0.0;
 
-    } else {
+    }
+    else
+    {
       // Reset Variables
       saved_time = ros::Time::now().toSec();
       turn_direction = pheeno.randomTurn(angular);

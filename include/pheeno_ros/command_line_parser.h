@@ -1,13 +1,10 @@
-//
-// Created by acslab on 8/10/17.
-//
-
 #ifndef COMMAND_LINE_PARSER_H
 #define COMMAND_LINE_PARSER_H
 
 #include <string>
 
-class CommandLineParser {
+class CommandLineParser
+{
 
 private:
   int argc;
@@ -22,6 +19,5 @@ public:
   std::string operator() (std::string param, std::string def_value="-1");
 
 };
-
 
 #endif // COMMAND_LINE_PARSER_H

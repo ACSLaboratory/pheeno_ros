@@ -4,7 +4,8 @@
 #include "pheeno_ros/command_line_parser.h"
 #include "pheeno_ros/pheeno_robot.h"
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   // Initial Variables
   std::string pheeno_name;
 
@@ -45,17 +46,20 @@ int main(int argc, char **argv) {
     // Find current duration of motion.
     current_duration = ros::Time::now().toSec() - saved_time;
 
-    if (current_duration <= 2.0) {
+    if (current_duration <= 2.0)
+    {
       pheeno.avoidObstaclesLinear(linear, angular, turn_direction);
       cmd_vel_msg.linear.x = linear;
       cmd_vel_msg.angular.z = angular;
-
-    } else if (current_duration < 5.0) {
+    }
+    else if (current_duration < 5.0)
+    {
       pheeno.avoidObstaclesAngular(angular, turn_direction);
       cmd_vel_msg.linear.x = linear;
       cmd_vel_msg.angular.z = angular;
-
-    } else {
+    }
+    else
+    {
       // Reset Variables
       saved_time = ros::Time::now().toSec();
       turn_direction = pheeno.randomTurn(0.07);

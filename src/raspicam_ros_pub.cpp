@@ -1,7 +1,3 @@
-//
-// Created by acs-lab on 8/9/17.
-//
-
 #include <ctime>
 #include <iostream>
 #include <ros/ros.h>
@@ -11,7 +7,8 @@
 #include <sensor_msgs/image_encodings.h>
 #include <opencv2/highgui/highgui.hpp>
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   // Variables
   raspicam::RaspiCam_Cv Camera;
   cv::Mat cv_image;
@@ -41,11 +38,13 @@ int main(int argc, char **argv) {
   // Open Camera
   ROS_INFO("Opening Camera...");
 
-  if (!Camera.open()) {
+  if (!Camera.open())
+  {
     ROS_ERROR("Error opening the camera!");
   }
 
-  while (node_obj.ok()) {
+  while (node_obj.ok())
+  {
     // Grab a new image
     Camera.grab();
     Camera.retrieve(cv_image);
