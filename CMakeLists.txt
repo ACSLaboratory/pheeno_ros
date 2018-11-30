@@ -4,10 +4,6 @@ project(pheeno_ros)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
-#### Uncomment these two to use pi cam with C++ ####
-# find_package(raspicam REQUIRED)
-# find_package(OpenCV REQUIRED)
-
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
@@ -20,12 +16,15 @@ find_package(catkin REQUIRED COMPONENTS
   # image_transport
 )
 
+#### Uncomment these two to use pi cam with C++ ####
+# find_package(raspicam REQUIRED)
+# find_package(OpenCV REQUIRED)
 
 catkin_package(
   #### Uncomment these four to use pi cam with C++ ####
   #  INCLUDE_DIRS include
   #  LIBRARIES raspicam
-  #  CATKIN_DEPENDS actionlib actionlib_msgs geometry_msgs roscpp rospy std_msgs image_transport cv_bridge nav_msgs sensor_msgs
+  #  CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs image_transport cv_bridge nav_msgs sensor_msgs
   #  DEPENDS system_lib OpenCV
 )
 
@@ -33,6 +32,7 @@ catkin_package(
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 catkin_python_setup()
+
 
 ###########
 ## Build ##
@@ -45,7 +45,6 @@ include_directories(
   # ${OpenCV_INCLUDE_DIRS}
   # ${raspicam_INCLUDE_DIRS}
 )
-
 
 #### Uncomment this section to use pi cam with C++ ####
 # INCLUDE(CheckCXXCompilerFlag)
@@ -70,7 +69,6 @@ include_directories(
 #### Uncomment this section to use pi cam with C++ ####
 # add_executable(raspicam_node
 #   src/raspicam_ros_pub.cpp)
-
 
 
 ###########
@@ -99,8 +97,13 @@ install(TARGETS obstacle_avoidance random_walk # raspicam_node
 )
 
 ## Mark cpp header files for installation
-install(DIRECTORY include/
+install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
   PATTERN ".svn" EXCLUDE
+)
+
+## Mark other files for installation (e.g. launch and bag files, etc.)
+install(DIRECTORY launch config
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
