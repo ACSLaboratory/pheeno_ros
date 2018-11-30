@@ -57,8 +57,8 @@ def main():
     # Other Important Variables
     count = 0
     cmd_vel_msg = Twist()
-    linear_vel = 0.05
-    angular_vel = 0.07
+    linear_vel = rospy.get_param("/pheeno_robot/linear_velocity")
+    angular_vel = rospy.get_param("/pheeno_robot/angular_velocity")
 
     rate = rospy.Rate(15)
 

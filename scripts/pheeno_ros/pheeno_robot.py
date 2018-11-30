@@ -92,42 +92,43 @@ class PheenoRobot(object):
     >>> pheeno = PheenoRobot("01", linear_vel=0.8, angular_vel=0)
 
     """
-    def __init__(self, robot_id, linear_velocity=0, angular_velocity=0,
-                 obstacle_velocity=0.5):
+    def __init__(self, robot_id):
         if robot_id == "":
             self.pheeno_id = robot_id
 
         else:
             self.pheeno_id = "/pheeno_" + str(robot_id)
 
-        self._velocity = {"linear": float(linear_velocity),
-                          "angular": float(angular_velocity),
-                          "obstacle": float(obstacle_velocity)}
+        self._velocity = {
+            "linear": rospy.get_param("/pheeno_robot/linear_velocity"),
+            "angular": rospy.get_param("/pheeno_robot/angular_velocity"),
+            "obstacle": rospy.get_param("/pheeno_robot/obstacle_velocity")}
 
         # Sensor Values
-        self._sensor_data = {"ir": {"center": 0.0,
-                                    "back": 0.0,
-                                    "right": 0.0,
-                                    "left": 0.0,
-                                    "cr": 0.0,
-                                    "cl": 0.0},
-                             "odom": {"position": 0.0,
-                                      "orient": 0.0,
-                                      "linear": 0.0,
-                                      "angular": 0.0},
-                             "encoder": {"LL": 0,
-                                         "LR": 0,
-                                         "RL": 0,
-                                         "RR": 0},
-                             "magnetometer": {"x": 0.0,
-                                              "y": 0.0,
-                                              "z": 0.0},
-                             "gyroscope": {"x": 0.0,
-                                           "y": 0.0,
-                                           "z": 0.0},
-                             "accelerometer": {"x": 0.0,
-                                               "y": 0.0,
-                                               "z": 0.0}}
+        self._sensor_data = {
+            "ir": {"center": 0.0,
+                   "back": 0.0,
+                   "right": 0.0,
+                   "left": 0.0,
+                   "cr": 0.0,
+                   "cl": 0.0},
+            "odom": {"position": 0.0,
+                     "orient": 0.0,
+                     "linear": 0.0,
+                     "angular": 0.0},
+            "encoder": {"LL": 0,
+                        "LR": 0,
+                        "RL": 0,
+                        "RR": 0},
+            "magnetometer": {"x": 0.0,
+                             "y": 0.0,
+                             "z": 0.0},
+            "gyroscope": {"x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0},
+            "accelerometer": {"x": 0.0,
+                              "y": 0.0,
+                              "z": 0.0}}
 
         # cmd_vel Publisher
         self._pub = rospy.Publisher(self.pheeno_id + "/cmd_vel",

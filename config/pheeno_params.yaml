@@ -1,3 +1,4 @@
 /pheeno_robot/range_to_avoid: 20.0
 /pheeno_robot/linear_velocity: 0.08
 /pheeno_robot/angular_velocity: 1.2
+/pheeno_robot/obstacle_velocity: 0.5

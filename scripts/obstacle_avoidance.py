@@ -57,10 +57,10 @@ def main():
     rate = rospy.Rate(10)
     saved_time = rospy.get_rostime().secs
     current_duration = 0
-    linear_vel = 0.05
-    angular_vel = 0.07
+    linear_vel = rospy.get_param("/pheeno_robot/linear_velocity")
+    angular_vel = rospy.get_param("/pheeno_robot/angular_velocity")
     cmd_vel_msg = Twist()
-    ir_limit = 20
+    ir_limit = rospy.get_param("/pheeno_robot/range_to_avoid")
 
     while not rospy.is_shutdown():
         # Find current duration
