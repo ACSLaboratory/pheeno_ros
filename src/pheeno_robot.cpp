@@ -53,42 +53,27 @@ PheenoRobot::PheenoRobot(std::string pheeno_name)
   nh_.getParam("/pheeno_robot/angular_velocity", angular_vel_);
 
   // IR Sensor Subscribers
-  sub_ir_center_ = nh_.subscribe(pheeno_name + "/scan_center", 10,
-                                 &PheenoRobot::irSensorCenterCallback, this);
-  sub_ir_right_ = nh_.subscribe(pheeno_name + "/scan_right", 10,
-                                &PheenoRobot::irSensorRightCallback, this);
-  sub_ir_left_ = nh_.subscribe(pheeno_name + "/scan_left", 10,
-                              &PheenoRobot::irSensorLeftCallback, this);
-  sub_ir_cr_ = nh_.subscribe(pheeno_name + "/scan_cr", 10,
-                             &PheenoRobot::irSensorCRightCallback, this);
-  sub_ir_cl_ = nh_.subscribe(pheeno_name + "/scan_cl", 10,
-                             &PheenoRobot::irSensorCLeftCallback, this);
-  sub_ir_back_ = nh_.subscribe(pheeno_name + "/scan_back", 10,
-                               &PheenoRobot::irSensorBackCallback, this);
-  sub_ir_bottom_ = nh_.subscribe(pheeno_name + "/scan_bottom", 10,
-                                 &PheenoRobot::irSensorBottomCallback, this);
+  sub_ir_center_ = nh_.subscribe(pheeno_name + "/scan_center", 10, &PheenoRobot::irSensorCenterCallback, this);
+  sub_ir_right_ = nh_.subscribe(pheeno_name + "/scan_right", 10, &PheenoRobot::irSensorRightCallback, this);
+  sub_ir_left_ = nh_.subscribe(pheeno_name + "/scan_left", 10, &PheenoRobot::irSensorLeftCallback, this);
+  sub_ir_cr_ = nh_.subscribe(pheeno_name + "/scan_cr", 10, &PheenoRobot::irSensorCRightCallback, this);
+  sub_ir_cl_ = nh_.subscribe(pheeno_name + "/scan_cl", 10, &PheenoRobot::irSensorCLeftCallback, this);
+  sub_ir_back_ = nh_.subscribe(pheeno_name + "/scan_back", 10, &PheenoRobot::irSensorBackCallback, this);
+  sub_ir_bottom_ = nh_.subscribe(pheeno_name + "/scan_bottom", 10, &PheenoRobot::irSensorBottomCallback, this);
 
   // Odom Subscriber
-  sub_odom_ = nh_.subscribe(pheeno_name + "/odom", 1,
-                            &PheenoRobot::odomCallback, this);
+  sub_odom_ = nh_.subscribe(pheeno_name + "/odom", 1, &PheenoRobot::odomCallback, this);
 
   // Encoder Subscribers
-  sub_encoder_LL_ = nh_.subscribe(pheeno_name + "/encoder_LL", 10,
-                                  &PheenoRobot::encoderLLCallback, this);
-  sub_encoder_LR_ = nh_.subscribe(pheeno_name + "/encoder_LR", 10,
-                                  &PheenoRobot::encoderLRCallback, this);
-  sub_encoder_RL_ = nh_.subscribe(pheeno_name + "/encoder_RL", 10,
-                                  &PheenoRobot::encoderRLCallback, this);
-  sub_encoder_RR_ = nh_.subscribe(pheeno_name + "/encoder_RR", 10,
-                                  &PheenoRobot::encoderRRCallback, this);
+  sub_encoder_LL_ = nh_.subscribe(pheeno_name + "/encoder_LL", 10, &PheenoRobot::encoderLLCallback, this);
+  sub_encoder_LR_ = nh_.subscribe(pheeno_name + "/encoder_LR", 10, &PheenoRobot::encoderLRCallback, this);
+  sub_encoder_RL_ = nh_.subscribe(pheeno_name + "/encoder_RL", 10, &PheenoRobot::encoderRLCallback, this);
+  sub_encoder_RR_ = nh_.subscribe(pheeno_name + "/encoder_RR", 10, &PheenoRobot::encoderRRCallback, this);
 
   // Magnetometer, Gyroscope, Accelerometer Subscriber
-  sub_magnetometer_ = nh_.subscribe(pheeno_name + "/magnetometer", 10,
-                                    &PheenoRobot::magnetometerCallback, this);
-  sub_gyroscope_ = nh_.subscribe(pheeno_name + "/gyroscope", 10,
-                                 &PheenoRobot::gyroscopeCallback, this);
-  sub_accelerometer_ = nh_.subscribe(pheeno_name + "/accelerometer", 10,
-                                     &PheenoRobot::accelerometerCallback, this);
+  sub_magnetometer_ = nh_.subscribe(pheeno_name + "/magnetometer", 10, &PheenoRobot::magnetometerCallback, this);
+  sub_gyroscope_ = nh_.subscribe(pheeno_name + "/gyroscope", 10, &PheenoRobot::gyroscopeCallback, this);
+  sub_accelerometer_ = nh_.subscribe(pheeno_name + "/accelerometer", 10, &PheenoRobot::accelerometerCallback, this);
 
   // cmd_vel Publisher
   pub_cmd_vel_ = nh_.advertise<geometry_msgs::Twist>(pheeno_name + "/cmd_vel", 100);
