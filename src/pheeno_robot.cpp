@@ -1,13 +1,4 @@
-#include "ros/ros.h"
-#include "std_msgs/Float32.h"
-#include "std_msgs/Int16.h"
-#include "geometry_msgs/Twist.h"
-#include "nav_msgs/Odometry.h"
 #include "pheeno_ros/pheeno_robot.h"
-#include <vector>
-#include <complex>
-#include <cstdlib>
-#include <iostream>
 
 /*
  * Contructor for the PheenoRobot Class.

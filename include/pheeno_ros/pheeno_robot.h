@@ -10,6 +10,7 @@
 #include <vector>
 #include <complex>
 #include <cstdlib>
+#include <iostream>
 
 namespace Pheeno
 {
