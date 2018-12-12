@@ -2,6 +2,14 @@
 """
 Pi Camera ROS Node
 
+NOTE
+----
+This method of publishing images is very computationally intensive,
+especially on a Raspberry Pi. Use when needed or try to do image processing
+within a node and only publish the results. For example, checking if a
+color is located within an image and then publishing True or False instead
+of the image.
+
 Written by: Zahi Kakish (zmk5)
 License: BSD 3-Clause
 
@@ -21,12 +29,6 @@ def main():
     This simple ROS node script takes images from a Pi Camera attached to a
     Pheeno's Raspberry Pi (or other Robot that uses the Pi Camera) and
     Publishes the images as a ROS topic.
-
-    NOTE: This method of publishing images is very computationally intensive,
-    especially on a Raspberry Pi. Use when needed or try to do image processing
-    within a node and only publish the results. For example, checking if a
-    color is located within an image and then publishing True or False instead
-    of the image.
 
     """
     # Select camera for use.
