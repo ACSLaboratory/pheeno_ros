@@ -44,21 +44,31 @@ PheenoRobot::PheenoRobot(std::string pheeno_name)
   nh_.getParam("/pheeno_robot/angular_velocity", angular_vel_);
 
   // IR Sensor Subscribers
-  sub_ir_center_ = nh_.subscribe(pheeno_name + "/scan_center", 10, &PheenoRobot::irSensorCenterCallback, this);
-  sub_ir_right_ = nh_.subscribe(pheeno_name + "/scan_right", 10, &PheenoRobot::irSensorRightCallback, this);
-  sub_ir_left_ = nh_.subscribe(pheeno_name + "/scan_left", 10, &PheenoRobot::irSensorLeftCallback, this);
-  sub_ir_cr_ = nh_.subscribe(pheeno_name + "/scan_cr", 10, &PheenoRobot::irSensorCRightCallback, this);
-  sub_ir_cl_ = nh_.subscribe(pheeno_name + "/scan_cl", 10, &PheenoRobot::irSensorCLeftCallback, this);
-  sub_ir_back_ = nh_.subscribe(pheeno_name + "/scan_back", 10, &PheenoRobot::irSensorBackCallback, this);
+  sub_ir_center_ = nh_.subscribe<std_msgs::Float32>(pheeno_name + "/scan_center", 10,
+    boost::bind(&PheenoRobot::irSensorCallback, this, _1, Pheeno::IR::CENTER));
+  sub_ir_right_ = nh_.subscribe<std_msgs::Float32>(pheeno_name + "/scan_right", 10,
+    boost::bind(&PheenoRobot::irSensorCallback, this, _1, Pheeno::IR::RIGHT));
+  sub_ir_left_ = nh_.subscribe<std_msgs::Float32>(pheeno_name + "/scan_left", 10,
+    boost::bind(&PheenoRobot::irSensorCallback, this, _1, Pheeno::IR::LEFT));
+  sub_ir_cr_ = nh_.subscribe<std_msgs::Float32>(pheeno_name + "/scan_cr", 10,
+    boost::bind(&PheenoRobot::irSensorCallback, this, _1, Pheeno::IR::CRIGHT));
+  sub_ir_cl_ = nh_.subscribe<std_msgs::Float32>(pheeno_name + "/scan_cl", 10,
+    boost::bind(&PheenoRobot::irSensorCallback, this, _1, Pheeno::IR::CLEFT));
+  sub_ir_back_ = nh_.subscribe<std_msgs::Float32>(pheeno_name + "/scan_back", 10,
+    boost::bind(&PheenoRobot::irSensorCallback, this, _1, Pheeno::IR::BACK));
 
   // Odom Subscriber
   sub_odom_ = nh_.subscribe(pheeno_name + "/odom", 1, &PheenoRobot::odomCallback, this);
 
   // Encoder Subscribers
-  sub_encoder_LL_ = nh_.subscribe(pheeno_name + "/encoder_LL", 10, &PheenoRobot::encoderLLCallback, this);
-  sub_encoder_LR_ = nh_.subscribe(pheeno_name + "/encoder_LR", 10, &PheenoRobot::encoderLRCallback, this);
-  sub_encoder_RL_ = nh_.subscribe(pheeno_name + "/encoder_RL", 10, &PheenoRobot::encoderRLCallback, this);
-  sub_encoder_RR_ = nh_.subscribe(pheeno_name + "/encoder_RR", 10, &PheenoRobot::encoderRRCallback, this);
+  sub_encoder_LL_ = nh_.subscribe<std_msgs::Int16>(pheeno_name + "/encoder_LL", 10,
+    boost::bind(&PheenoRobot::encoderCallback, this, _1, Pheeno::ENCODER::LL));
+  sub_encoder_LR_ = nh_.subscribe<std_msgs::Int16>(pheeno_name + "/encoder_LR", 10,
+    boost::bind(&PheenoRobot::encoderCallback, this, _1, Pheeno::ENCODER::LR));
+  sub_encoder_RL_ = nh_.subscribe<std_msgs::Int16>(pheeno_name + "/encoder_RL", 10,
+    boost::bind(&PheenoRobot::encoderCallback, this, _1, Pheeno::ENCODER::RL));
+  sub_encoder_RR_ = nh_.subscribe<std_msgs::Int16>(pheeno_name + "/encoder_RR", 10,
+    boost::bind(&PheenoRobot::encoderCallback, this, _1, Pheeno::ENCODER::RR));
 
   // Magnetometer, Gyroscope, Accelerometer Subscriber
   sub_magnetometer_ = nh_.subscribe(pheeno_name + "/magnetometer", 10, &PheenoRobot::magnetometerCallback, this);
@@ -82,51 +92,11 @@ void PheenoRobot::publish(geometry_msgs::Twist velocity)
 }
 
 /*
- * Callback function for the IR Sensor (center) ROS subscriber.
+ * Callback function for the IR Sensors' ROS subscriber.
  */
-void PheenoRobot::irSensorCenterCallback(const std_msgs::Float32::ConstPtr& msg)
+void PheenoRobot::irSensorCallback(const std_msgs::Float32::ConstPtr& msg, int ir_location)
 {
-  ir_sensor_vals_[Pheeno::IR::CENTER] = static_cast<double>(msg->data);
-}
-
-/*
- * Callback function for the IR Sensor (back) ROS subscriber.
- */
-void PheenoRobot::irSensorBackCallback(const std_msgs::Float32::ConstPtr& msg)
-{
-  ir_sensor_vals_[Pheeno::IR::BACK] = static_cast<double>(msg->data);
-}
-
-/*
- * Callback function for the IR Sensor (right) ROS subscriber.
- */
-void PheenoRobot::irSensorRightCallback(const std_msgs::Float32::ConstPtr& msg)
-{
-  ir_sensor_vals_[Pheeno::IR::RIGHT] = static_cast<double>(msg->data);
-}
-
-/*
- * Callback function for the IR Sensor (left) ROS subscriber.
- */
-void PheenoRobot::irSensorLeftCallback(const std_msgs::Float32::ConstPtr& msg)
-{
-  ir_sensor_vals_[Pheeno::IR::LEFT] = static_cast<double>(msg->data);
-}
-
-/*
- * Callback function for the IR Sensor (center-right) ROS subscriber.
- */
-void PheenoRobot::irSensorCRightCallback(const std_msgs::Float32::ConstPtr& msg)
-{
-  ir_sensor_vals_[Pheeno::IR::CRIGHT] = static_cast<double>(msg->data);
-}
-
-/*
- * Callback function for the IR Sensor (center-left) ROS subscriber.
- */
-void PheenoRobot::irSensorCLeftCallback(const std_msgs::Float32::ConstPtr& msg)
-{
-  ir_sensor_vals_[Pheeno::IR::CLEFT] = static_cast<double>(msg->data);
+  ir_sensor_vals_[ir_location] = static_cast<double>(msg->data);
 }
 
 /*
@@ -177,35 +147,11 @@ void PheenoRobot::odomCallback(const nav_msgs::Odometry::ConstPtr& msg)
 }
 
 /*
- * Callback function for the Encoder LL ROS subscriber.
+ * Callback function for the Encoders connected to each H-bridge ROS Subscriber.
  */
-void PheenoRobot::encoderLLCallback(const std_msgs::Int16::ConstPtr& msg)
+void PheenoRobot::encoderCallback(const std_msgs::Int16::ConstPtr& msg, int encoder_location)
 {
-  encoder_vals_[Pheeno::ENCODER::LL] = static_cast<int>(msg->data);
-}
-
-/*
- * Callback function for the Encoder LR ROS subscriber.
- */
-void PheenoRobot::encoderLRCallback(const std_msgs::Int16::ConstPtr& msg)
-{
-  encoder_vals_[Pheeno::ENCODER::LR] = static_cast<int>(msg->data);
-}
-
-/*
- * Callback function for the Encoder RL ROS subscriber.
- */
-void PheenoRobot::encoderRLCallback(const std_msgs::Int16::ConstPtr& msg)
-{
-  encoder_vals_[Pheeno::ENCODER::RL] = static_cast<int>(msg->data);
-}
-
-/*
- * Callback function for the Encoder RR ROS subscriber.
- */
-void PheenoRobot::encoderRRCallback(const std_msgs::Int16::ConstPtr& msg)
-{
-  encoder_vals_[Pheeno::ENCODER::RR] = static_cast<int>(msg->data);
+  encoder_vals_[encoder_location] = static_cast<int>(msg->data);
 }
 
 /*

@@ -11,6 +11,7 @@
 #include <complex>
 #include <cstdlib>
 #include <iostream>
+#include <boost/bind.hpp>
 
 namespace Pheeno
 {
@@ -114,21 +115,13 @@ private:
   ros::Publisher pub_cmd_vel_;
 
   // IR Callback Methods
-  void irSensorCenterCallback(const std_msgs::Float32::ConstPtr& msg);
-  void irSensorBackCallback(const std_msgs::Float32::ConstPtr& msg);
-  void irSensorRightCallback(const std_msgs::Float32::ConstPtr& msg);
-  void irSensorLeftCallback(const std_msgs::Float32::ConstPtr& msg);
-  void irSensorCRightCallback(const std_msgs::Float32::ConstPtr& msg);
-  void irSensorCLeftCallback(const std_msgs::Float32::ConstPtr& msg);
+  void irSensorCallback(const std_msgs::Float32::ConstPtr& msg, int ir_location);
 
   // Odom Callback Methods
   void odomCallback(const nav_msgs::Odometry::ConstPtr& msg);
 
   // Encoder Callback Methods
-  void encoderLLCallback(const std_msgs::Int16::ConstPtr& msg);
-  void encoderLRCallback(const std_msgs::Int16::ConstPtr& msg);
-  void encoderRLCallback(const std_msgs::Int16::ConstPtr& msg);
-  void encoderRRCallback(const std_msgs::Int16::ConstPtr& msg);
+  void encoderCallback(const std_msgs::Int16::ConstPtr& msg, int encoder_location);
 
   // Other Sensor Callback Methods
   void magnetometerCallback(const geometry_msgs::Vector3::ConstPtr& msg);

@@ -19,10 +19,12 @@ find_package(catkin REQUIRED COMPONENTS
 #### Uncomment these two to use pi cam with C++ ####
 # find_package(raspicam REQUIRED)
 # find_package(OpenCV REQUIRED)
+find_package(Boost REQUIRED)
 
 catkin_package(
   #### Uncomment these four to use pi cam with C++ ####
-  #  INCLUDE_DIRS include
+  INCLUDE_DIRS include
+  DEPENDS Boost
   #  LIBRARIES raspicam
   #  CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs image_transport cv_bridge nav_msgs sensor_msgs
   #  DEPENDS system_lib OpenCV
@@ -41,6 +43,7 @@ catkin_python_setup()
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
   #### Uncomment these two to use pi cam with C++ ####
   # ${OpenCV_INCLUDE_DIRS}
   # ${raspicam_INCLUDE_DIRS}
@@ -76,10 +79,10 @@ include_directories(
 ###########
 
 add_executable(obstacle_avoidance src/command_line_parser.cpp src/pheeno_robot.cpp src/obstacle_avoidance.cpp)
-target_link_libraries(obstacle_avoidance ${catkin_LIBRARIES})
+target_link_libraries(obstacle_avoidance ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(random_walk src/command_line_parser.cpp src/pheeno_robot.cpp src/random_walk.cpp)
-target_link_libraries(random_walk ${catkin_LIBRARIES})
+target_link_libraries(random_walk ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
