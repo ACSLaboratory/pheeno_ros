@@ -45,12 +45,6 @@ public:
   std::string pheeno_namespace_id_;
 
   // Sensor Messages
-  std_msgs::Float32 ir_sensor_center_;
-  std_msgs::Float32 ir_sensor_back_;
-  std_msgs::Float32 ir_sensor_right_;
-  std_msgs::Float32 ir_sensor_left_;
-  std_msgs::Float32 ir_sensor_c_right_;
-  std_msgs::Float32 ir_sensor_c_left_;
   std::vector<double> ir_sensor_vals_;
   std::vector<int> encoder_vals_;
   std::vector<double> magnetometer_vals_;
