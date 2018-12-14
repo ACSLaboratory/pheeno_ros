@@ -50,7 +50,6 @@ PheenoRobot::PheenoRobot(std::string pheeno_name)
   sub_ir_cr_ = nh_.subscribe(pheeno_name + "/scan_cr", 10, &PheenoRobot::irSensorCRightCallback, this);
   sub_ir_cl_ = nh_.subscribe(pheeno_name + "/scan_cl", 10, &PheenoRobot::irSensorCLeftCallback, this);
   sub_ir_back_ = nh_.subscribe(pheeno_name + "/scan_back", 10, &PheenoRobot::irSensorBackCallback, this);
-  sub_ir_bottom_ = nh_.subscribe(pheeno_name + "/scan_bottom", 10, &PheenoRobot::irSensorBottomCallback, this);
 
   // Odom Subscriber
   sub_odom_ = nh_.subscribe(pheeno_name + "/odom", 1, &PheenoRobot::odomCallback, this);
@@ -147,28 +146,6 @@ bool PheenoRobot::irSensorTriggered(float sensor_limit)
 
   // Greater than 1 instead of 0, because we aren't using the back IR sensor.
   return (count > 1) ? true : false;
-}
-
-/*
- * Callback function for the IR Sensor (bottom) ROS subscriber.
- *
- * Sets the data to either 0 or 1 if the message recieved is less than
- * 1600 or greater than 1600, respectively. The 1600 number is dependent
- * on the IR sensor used, therefore its value can be changed for use with
- * different applications.
- *
- * NOTE: ONLY FOR THE PHEENO MARKOV CHAIN EXPERIMENT.
- */
-void PheenoRobot::irSensorBottomCallback(const std_msgs::Int16::ConstPtr& msg)
-{
-  if (msg->data < 1600)
-  {
-    ir_sensor_bottom_.data = 0;  // Black on the bottom
-  }
-  else
-  {
-    ir_sensor_bottom_.data = 1;  // White on the bottom
-  }
 }
 
 /*

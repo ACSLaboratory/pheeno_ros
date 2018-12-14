@@ -50,7 +50,6 @@ public:
   std_msgs::Float32 ir_sensor_left_;
   std_msgs::Float32 ir_sensor_c_right_;
   std_msgs::Float32 ir_sensor_c_left_;
-  std_msgs::Int16 ir_sensor_bottom_;
   std::vector<double> ir_sensor_vals_;
   std::vector<int> encoder_vals_;
   std::vector<double> magnetometer_vals_;
@@ -121,7 +120,6 @@ private:
   void irSensorLeftCallback(const std_msgs::Float32::ConstPtr& msg);
   void irSensorCRightCallback(const std_msgs::Float32::ConstPtr& msg);
   void irSensorCLeftCallback(const std_msgs::Float32::ConstPtr& msg);
-  void irSensorBottomCallback(const std_msgs::Int16::ConstPtr& msg);
 
   // Odom Callback Methods
   void odomCallback(const nav_msgs::Odometry::ConstPtr& msg);
