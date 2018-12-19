@@ -39,9 +39,16 @@ PheenoRobot::PheenoRobot(std::string pheeno_name)
   }
 
   // Use rosparams to fill defaults.
-  nh_.getParam("/pheeno_robot/range_to_avoid", range_to_avoid_);
-  nh_.getParam("/pheeno_robot/linear_velocity", linear_vel_);
-  nh_.getParam("/pheeno_robot/angular_velocity", angular_vel_);
+  nh_.getParam("/pheeno_robot/max_range_to_avoid", max_range_to_avoid_);
+  nh_.getParam("/pheeno_robot/min_range_to_avoid", min_range_to_avoid_);
+  nh_.getParam("/pheeno_robot/linear_velocity", def_linear_vel_);
+  nh_.getParam("/pheeno_robot/angular_velocity", def_angular_vel_);
+  nh_.getParam("/pheeno_robot/obstacle_linear_velocity", obs_linear_vel_);
+  nh_.getParam("/pheeno_robot/obstacle_angular_velocity", obs_angular_vel_);
+
+  // Set the angular and linear velocity variables the default values.
+  linear_vel_ = def_linear_vel_;
+  angular_vel_ = def_angular_vel_;
 
   // IR Sensor Subscribers
   sub_ir_center_ = nh_.subscribe<std_msgs::Float32>(pheeno_name + "/scan_center", 10,
@@ -205,6 +212,38 @@ double PheenoRobot::randomTurn(float angular)
 }
 
 /*
+ *
+ */
+double PheenoRobot::getLinearVelocity()
+{
+  return linear_vel_;
+}
+
+/*
+ *
+ */
+double PheenoRobot::getAngularVelocity()
+{
+  return angular_vel_;
+}
+
+/*
+ *
+ */
+void PheenoRobot::setLinearVelocity(double new_linear_velocity)
+{
+  linear_vel_ = new_linear_velocity;
+}
+
+/*
+ *
+ */
+void PheenoRobot::setAngularVelocity(double new_angular_velocity)
+{
+  angular_vel_ = new_angular_velocity;
+}
+
+/*
  * Obstacle avoidance logic for a robot moving in a linear motion.
  *
  * Using class specific IR values, this simple if-else logic progresses by
@@ -212,57 +251,61 @@ double PheenoRobot::randomTurn(float angular)
  * the references to linear and angular are set to specific values to make the
  * robot avoid the obstacle.
  */
-void PheenoRobot::avoidObstaclesLinear(double& linear, double& angular, float angular_velocity, float linear_velocity,
-                                       double range_to_avoid)
+void PheenoRobot::avoidObstacles(double& linear, double& angular)
 {
-  if (ir_sensor_vals_[Pheeno::IR::CENTER] < range_to_avoid)
-  {
-    if (std::abs((ir_sensor_vals_[Pheeno::IR::RIGHT] - ir_sensor_vals_[Pheeno::IR::LEFT])) < 5.0 ||
-        (ir_sensor_vals_[Pheeno::IR::RIGHT] > range_to_avoid && ir_sensor_vals_[Pheeno::IR::LEFT] > range_to_avoid))
-    {
-      linear = 0.0;
-      angular = randomTurn();
-    }
+  double new_angular;
 
+  if (angular == 0)
+  {
+    new_angular = obs_angular_vel_;
+  }
+  else
+  {
+    new_angular = angular;
+  }
+
+  if (ir_sensor_vals_[Pheeno::IR::CENTER] < max_range_to_avoid_)
+  {
     if (ir_sensor_vals_[Pheeno::IR::RIGHT] < ir_sensor_vals_[Pheeno::IR::LEFT])
     {
       linear = 0.0;
-      angular = -1 * angular_velocity;  // Turn Left
+      angular = -1 * new_angular; // Turn Left
     }
     else
     {
       linear = 0.0;
-      angular = angular_velocity;  // Turn Right
+      angular = new_angular; // Turn Right
     }
   }
-  else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < range_to_avoid && ir_sensor_vals_[Pheeno::IR::CLEFT] < range_to_avoid)
+  else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < max_range_to_avoid_ &&
+           ir_sensor_vals_[Pheeno::IR::CLEFT] < max_range_to_avoid_)
   {
     linear = 0.0;
     angular = randomTurn();
   }
-  else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < range_to_avoid)
+  else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < max_range_to_avoid_)
   {
     linear = 0.0;
-    angular = -1 * angular_velocity;  // Turn Left
+    angular = -1 * new_angular; // Turn Left
   }
-  else if (ir_sensor_vals_[Pheeno::IR::CLEFT] < range_to_avoid)
+  else if (ir_sensor_vals_[Pheeno::IR::CLEFT] < max_range_to_avoid_)
   {
     linear = 0.0;
-    angular = angular_velocity;  // Turn Right
+    angular = new_angular; // Turn Right
   }
-  else if (ir_sensor_vals_[Pheeno::IR::RIGHT] < range_to_avoid)
+  else if (ir_sensor_vals_[Pheeno::IR::RIGHT] < max_range_to_avoid_)
   {
     linear = 0.0;
-    angular = -1 * angular_velocity;  // Turn Left
+    angular = -1 * new_angular; // Turn Left
   }
-  else if (ir_sensor_vals_[Pheeno::IR::LEFT] < range_to_avoid)
+  else if (ir_sensor_vals_[Pheeno::IR::LEFT] < max_range_to_avoid_)
   {
     linear = 0.0;
-    angular = angular_velocity;  // Turn Right
+    angular = new_angular; // Turn Right
   }
   else
   {
-    linear = linear_velocity;  // Move Straight
+    linear = linear_vel_; // Move Straight
     angular = 0.0;
   }
 }

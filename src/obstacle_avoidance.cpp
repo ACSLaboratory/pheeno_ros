@@ -37,7 +37,7 @@ int main(int argc, char **argv)
   double saved_time = ros::Time::now().toSec();
   double current_duration;
   double turn_direction = pheeno.randomTurn(0.07);
-  double linear = 0.0;
+  double linear = pheeno.getLinearVelocity();
   double angular = 0.0;
   geometry_msgs::Twist cmd_vel_msg;
 

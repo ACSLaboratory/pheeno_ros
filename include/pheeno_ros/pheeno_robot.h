@@ -61,20 +61,17 @@ public:
   // Camera Messages
   std::vector<bool> color_state_facing_;
 
-  // Default values for Pheeno.
-  double range_to_avoid_;
-  float linear_vel_;
-  float angular_vel_;
-
   // Public Sensor Methods
   bool irSensorTriggered(float sensor_limits);
 
   // Public Movement Methods
   double randomTurn(float angular = 0.06);
-  void avoidObstaclesLinear(double &linear, double &angular,
-                            float angular_velocity = 1.2, float linear_velocity = 0.08,
-                            double range_to_avoid = 20.0);
-  void avoidObstaclesAngular(double &angular, double &random_turn_value,
+  double getLinearVelocity();
+  double getAngularVelocity();
+  void setLinearVelocity(double new_linear_velocity);
+  void setAngularVelocity(double new_angular_velocity);
+  void avoidObstacles(double& linear, double& angular);
+  void avoidObstaclesAngular(double& angular, double& random_turn_value,
                              float angular_velocity = 1.2, double range_to_avoid = 20.0);
 
   // Public Publishers
@@ -107,6 +104,16 @@ private:
 
   // Private Publishers
   ros::Publisher pub_cmd_vel_;
+
+  // Default values for Pheeno.
+  double max_range_to_avoid_;
+  double min_range_to_avoid_;
+  double linear_vel_;
+  double angular_vel_;
+  double def_linear_vel_;
+  double def_angular_vel_;
+  double obs_linear_vel_;
+  double obs_angular_vel_;
 
   // IR Callback Methods
   void irSensorCallback(const std_msgs::Float32::ConstPtr& msg, int ir_location);
