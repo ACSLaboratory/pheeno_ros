@@ -65,17 +65,16 @@ public:
   bool irSensorTriggered(float sensor_limits);
 
   // Public Movement Methods
-  double randomTurn(float angular = 0.06);
+  double randomTurn(double angular);
   double getLinearVelocity();
   double getAngularVelocity();
   void setLinearVelocity(double new_linear_velocity);
   void setAngularVelocity(double new_angular_velocity);
-  void avoidObstacles(double& linear, double& angular);
-  void avoidObstaclesAngular(double& angular, double& random_turn_value,
-                             float angular_velocity = 1.2, double range_to_avoid = 20.0);
+  void avoidObstacleMove(double& linear, double& angular, double range_to_avoid);
+  void avoidObstacleStop(double& linear, double& angular, double range_to_avoid);
 
   // Public Publishers
-  void publish(geometry_msgs::Twist velocity);
+  void publishCmdVelocity(geometry_msgs::Twist velocity);
 
   // Public camera methods
   bool checkFrontColor(int color);

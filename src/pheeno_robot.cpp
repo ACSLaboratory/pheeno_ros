@@ -93,7 +93,7 @@ PheenoRobot::PheenoRobot(std::string pheeno_name)
  * The specific Topic name that the message is published to is defined
  * in the Constructor for the PheenoRobot class.
  */
-void PheenoRobot::publish(geometry_msgs::Twist velocity)
+void PheenoRobot::publishCmdVelocity(geometry_msgs::Twist velocity)
 {
   pub_cmd_vel_.publish(velocity);
 }
@@ -206,9 +206,9 @@ void PheenoRobot::piCamCallback()
 /*
  * Generates a random turn direction (a sign change) based on a user provided value.
  */
-double PheenoRobot::randomTurn(float angular)
+double PheenoRobot::randomTurn(double angular)
 {
-  return rand() % 10 + 1 <= 5 ? (-1 * angular) : angular;
+  return rand() % 10 + 1 <= 5 ? (-1.0 * angular) : angular;
 }
 
 /*
@@ -244,14 +244,15 @@ void PheenoRobot::setAngularVelocity(double new_angular_velocity)
 }
 
 /*
- * Obstacle avoidance logic for a robot moving in a linear motion.
+ * Obstacle avoidance logic for a robot moving in an angular (turning) motion.
  *
  * Using class specific IR values, this simple if-else logic progresses by
  * comparing them to a certain range to avoid (default value). If triggered,
- * the references to linear and angular are set to specific values to make the
- * robot avoid the obstacle.
+ * the references to angular are set to specific values to make the robot avoid
+ * the obstacle. Compared to the linear version of this callback member
+ * function, this function only modifies the angular reference.
  */
-void PheenoRobot::avoidObstacles(double& linear, double& angular)
+void PheenoRobot::avoidObstacleMove(double& linear, double& angular, double range_to_avoid)
 {
   double new_angular;
 
@@ -264,12 +265,92 @@ void PheenoRobot::avoidObstacles(double& linear, double& angular)
     new_angular = angular;
   }
 
-  if (ir_sensor_vals_[Pheeno::IR::CENTER] < max_range_to_avoid_)
+  // If Center IR Tripped
+  if (ir_sensor_vals_[Pheeno::IR::CENTER] < range_to_avoid)
+  {
+    // if (std::abs((ir_sensor_vals_[Pheeno::IR::RIGHT] - ir_sensor_vals_[Pheeno::IR::LEFT])) < 5.0 ||
+    //     (ir_sensor_vals_[Pheeno::IR::RIGHT] > range_to_avoid && ir_sensor_vals_[Pheeno::IR::LEFT] > range_to_avoid))
+    // {
+    //   angular = randomTurn();
+    // }
+
+    if (ir_sensor_vals_[Pheeno::IR::RIGHT] < ir_sensor_vals_[Pheeno::IR::LEFT])
+    {
+      linear = obs_linear_vel_;
+      angular = -1.0 * new_angular;  // Turn Left
+    }
+    else
+    {
+      linear = obs_linear_vel_;
+      angular = new_angular;  // Turn Right
+    }
+  }
+  // If both CRight AND CLeft IR sensors tripped.
+  else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < range_to_avoid && ir_sensor_vals_[Pheeno::IR::CLEFT] < range_to_avoid)
+  {
+    linear = obs_linear_vel_;
+    angular = randomTurn(new_angular);
+  }
+  // If only CRight IR sensor tripped.
+  else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < range_to_avoid)
+  {
+    linear = obs_linear_vel_;
+    angular = -1.0 * new_angular;  // Turn Left
+  }
+  // If only CLeft IR sensor tripped.
+  else if (ir_sensor_vals_[Pheeno::IR::CLEFT] < range_to_avoid)
+  {
+    linear = obs_linear_vel_;
+    angular = new_angular;  // Turn Right
+  }
+  // If only Right IR sensor tripped.
+  else if (ir_sensor_vals_[Pheeno::IR::RIGHT] < range_to_avoid)
+  {
+    linear = obs_linear_vel_;
+    angular = -1.0 * new_angular;  // Turn Left
+  }
+  // If only Left IR sensor tripped.
+  else if (ir_sensor_vals_[Pheeno::IR::LEFT] < range_to_avoid)
+  {
+    linear = obs_linear_vel_;
+    angular = new_angular;  // Turn Right
+  }
+  else
+  {
+    ROS_INFO("No obstacle to avoid (avoidObstacleMove()).");
+    linear = linear_vel_;
+    angular = 0.0;
+  }
+}
+
+/*
+ * Obstacle avoidance logic for a robot moving in a linear motion.
+ *
+ * Using class specific IR values, this simple if-else logic progresses by
+ * comparing them to a certain range to avoid (default value). If triggered,
+ * the references to linear and angular are set to specific values to make the
+ * robot avoid the obstacle.
+ */
+void PheenoRobot::avoidObstacleStop(double& linear, double& angular, double range_to_avoid)
+{
+  double new_angular;
+
+  if (angular == 0)
+  {
+    new_angular = obs_angular_vel_;
+  }
+  else
+  {
+    new_angular = angular;
+  }
+
+  // If Center IR Tripped
+  if (ir_sensor_vals_[Pheeno::IR::CENTER] < range_to_avoid)
   {
     if (ir_sensor_vals_[Pheeno::IR::RIGHT] < ir_sensor_vals_[Pheeno::IR::LEFT])
     {
       linear = 0.0;
-      angular = -1 * new_angular; // Turn Left
+      angular = -1.0 * new_angular; // Turn Left
     }
     else
     {
@@ -277,95 +358,40 @@ void PheenoRobot::avoidObstacles(double& linear, double& angular)
       angular = new_angular; // Turn Right
     }
   }
-  else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < max_range_to_avoid_ &&
-           ir_sensor_vals_[Pheeno::IR::CLEFT] < max_range_to_avoid_)
-  {
-    linear = 0.0;
-    angular = randomTurn();
-  }
-  else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < max_range_to_avoid_)
-  {
-    linear = 0.0;
-    angular = -1 * new_angular; // Turn Left
-  }
-  else if (ir_sensor_vals_[Pheeno::IR::CLEFT] < max_range_to_avoid_)
-  {
-    linear = 0.0;
-    angular = new_angular; // Turn Right
-  }
-  else if (ir_sensor_vals_[Pheeno::IR::RIGHT] < max_range_to_avoid_)
-  {
-    linear = 0.0;
-    angular = -1 * new_angular; // Turn Left
-  }
-  else if (ir_sensor_vals_[Pheeno::IR::LEFT] < max_range_to_avoid_)
-  {
-    linear = 0.0;
-    angular = new_angular; // Turn Right
-  }
-  else
-  {
-    linear = linear_vel_; // Move Straight
-    angular = 0.0;
-  }
-}
-
-/*
- * Obstacle avoidance logic for a robot moving in an angular (turning) motion.
- *
- * Using class specific IR values, this simple if-else logic progresses by
- * comparing them to a certain range to avoid (default value). If triggered,
- * the references to angular are set to specific values to make the robot avoid
- * the obstacle. Compared to the linear version of this callback member
- * function, this function only modifies the angular reference.
- */
-void PheenoRobot::avoidObstaclesAngular(double& angular, double& random_turn_value, float angular_velocity,
-                                        double range_to_avoid)
-{
-  if (ir_sensor_vals_[Pheeno::IR::CENTER] < range_to_avoid)
-  {
-    if (std::abs((ir_sensor_vals_[Pheeno::IR::RIGHT] - ir_sensor_vals_[Pheeno::IR::LEFT])) < 5.0 ||
-        (ir_sensor_vals_[Pheeno::IR::RIGHT] > range_to_avoid && ir_sensor_vals_[Pheeno::IR::LEFT] > range_to_avoid))
-    {
-      angular = randomTurn();
-    }
-
-    if (ir_sensor_vals_[Pheeno::IR::RIGHT] < ir_sensor_vals_[Pheeno::IR::LEFT])
-    {
-      angular = -1 * angular_velocity;  // Turn Left
-    }
-    else
-    {
-      angular = angular_velocity;  // Turn Right
-    }
-  }
+  // If both CRight AND CLeft IR sensors tripped.
   else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < range_to_avoid && ir_sensor_vals_[Pheeno::IR::CLEFT] < range_to_avoid)
   {
-    angular = randomTurn();
+    linear = 0.0;
+    angular = randomTurn(new_angular);
   }
+  // If only CRight IR sensor tripped.
   else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < range_to_avoid)
   {
-    angular = -1 * angular_velocity;  // Turn Left
+    linear = 0.0;
+    angular = -1.0 * new_angular; // Turn Left
   }
+  // If only CLeft IR sensor tripped.
   else if (ir_sensor_vals_[Pheeno::IR::CLEFT] < range_to_avoid)
   {
-    angular = angular_velocity;  // Turn Right
+    linear = 0.0;
+    angular = new_angular; // Turn Right
   }
+  // If only Right IR sensor tripped.
   else if (ir_sensor_vals_[Pheeno::IR::RIGHT] < range_to_avoid)
   {
-    angular = -1 * angular_velocity;  // Turn Left
+    linear = 0.0;
+    angular = -1.0 * new_angular; // Turn Left
   }
+  // If only Left IR sensor tripped.
   else if (ir_sensor_vals_[Pheeno::IR::LEFT] < range_to_avoid)
   {
-    angular = angular_velocity;  // Turn Right
+    linear = 0.0;
+    angular = new_angular; // Turn Right
   }
   else
   {
-    angular = random_turn_value;
-  }
-
-  if (angular != random_turn_value)
-  {
-    random_turn_value = angular;
+    ROS_INFO("No obstacle to avoid (avoidObstacleStop()).");
+    linear = linear_vel_; // Move Straight
+    angular = 0.0;
   }
 }
