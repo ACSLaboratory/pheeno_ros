@@ -41,8 +41,8 @@ PheenoRobot::PheenoRobot(std::string pheeno_name)
   // Use rosparams to fill defaults.
   nh_.getParam("/pheeno_robot/max_range_to_avoid", max_range_to_avoid_);
   nh_.getParam("/pheeno_robot/min_range_to_avoid", min_range_to_avoid_);
-  nh_.getParam("/pheeno_robot/linear_velocity", def_linear_vel_);
-  nh_.getParam("/pheeno_robot/angular_velocity", def_angular_vel_);
+  nh_.getParam("/pheeno_robot/default_linear_velocity", def_linear_vel_);
+  nh_.getParam("/pheeno_robot/default_angular_velocity", def_angular_vel_);
   nh_.getParam("/pheeno_robot/obstacle_linear_velocity", obs_linear_vel_);
   nh_.getParam("/pheeno_robot/obstacle_angular_velocity", obs_angular_vel_);
 
