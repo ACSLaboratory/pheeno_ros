@@ -39,12 +39,38 @@ PheenoRobot::PheenoRobot(std::string pheeno_name)
   }
 
   // Use rosparams to fill defaults.
-  nh_.getParam("/pheeno_robot/max_range_to_avoid", max_range_to_avoid_);
-  nh_.getParam("/pheeno_robot/min_range_to_avoid", min_range_to_avoid_);
-  nh_.getParam("/pheeno_robot/default_linear_velocity", def_linear_vel_);
-  nh_.getParam("/pheeno_robot/default_angular_velocity", def_angular_vel_);
-  nh_.getParam("/pheeno_robot/obstacle_linear_velocity", obs_linear_vel_);
-  nh_.getParam("/pheeno_robot/obstacle_angular_velocity", obs_angular_vel_);
+  if (nh_.hasParam("/pheeno_robot/default_linear_velocity"))
+  {
+    nh_.getParam("/pheeno_robot/default_linear_velocity", def_linear_vel_);
+  }
+  else
+  {
+    def_linear_vel_ = 0.5;
+  }
+  if (nh_.hasParam("/pheeno_robot/default_angular_velocity"))
+  {
+    nh_.getParam("/pheeno_robot/default_angular_velocity", def_angular_vel_);
+  }
+  else
+  {
+    def_angular_vel_ = 0.5;
+  }
+  if (nh_.hasParam("/pheeno_robot/obstacle_linear_velocity"))
+  {
+    nh_.getParam("/pheeno_robot/obstacle_linear_velocity", obs_linear_vel_);
+  }
+  else
+  {
+    obs_linear_vel_ = 0.5;
+  }
+  if (nh_.hasParam("/pheeno_robot/obstacle_angular_velocity"))
+  {
+    nh_.getParam("/pheeno_robot/obstacle_angular_velocity", obs_angular_vel_);
+  }
+  else
+  {
+    obs_angular_vel_ = 0.5;
+  }
 
   // Set the angular and linear velocity variables the default values.
   linear_vel_ = def_linear_vel_;
@@ -214,33 +240,65 @@ double PheenoRobot::randomTurn(double angular)
 /*
  *
  */
-double PheenoRobot::getLinearVelocity()
+double PheenoRobot::getDefaultLinearVelocity()
 {
-  return linear_vel_;
+  return def_linear_vel_;
 }
 
 /*
  *
  */
-double PheenoRobot::getAngularVelocity()
+double PheenoRobot::getDefaultAngularVelocity()
 {
-  return angular_vel_;
+  return def_angular_vel_;
 }
 
 /*
  *
  */
-void PheenoRobot::setLinearVelocity(double new_linear_velocity)
+void PheenoRobot::setDefaultLinearVelocity(double new_linear_velocity)
 {
-  linear_vel_ = new_linear_velocity;
+  def_linear_vel_ = new_linear_velocity;
 }
 
 /*
  *
  */
-void PheenoRobot::setAngularVelocity(double new_angular_velocity)
+void PheenoRobot::setDefaultAngularVelocity(double new_angular_velocity)
 {
-  angular_vel_ = new_angular_velocity;
+  def_angular_vel_ = new_angular_velocity;
+}
+
+/*
+ *
+ */
+double PheenoRobot::getObstacleLinearVelocity()
+{
+  return obs_linear_vel_;
+}
+
+/*
+ *
+ */
+double PheenoRobot::getObstacleAngularVelocity()
+{
+  return obs_angular_vel_;
+}
+
+/*
+ *
+ */
+void PheenoRobot::setObstacleLinearVelocity(double new_linear_velocity)
+{
+  obs_linear_vel_ = new_linear_velocity;
+}
+
+/*
+ *
+ */
+void PheenoRobot::setObstacleAngularVelocity(double new_angular_velocity)
+{
+  obs_angular_vel_ = new_angular_velocity;
 }
 
 /*
@@ -252,75 +310,81 @@ void PheenoRobot::setAngularVelocity(double new_angular_velocity)
  * the obstacle. Compared to the linear version of this callback member
  * function, this function only modifies the angular reference.
  */
-void PheenoRobot::avoidObstacleMove(double& linear, double& angular, double range_to_avoid)
+bool PheenoRobot::avoidObstacleMove(double& linear, double& angular, double range_to_avoid)
 {
-  double new_angular;
+  // double new_angular_vel;
+  bool obs_flag = false;
 
-  if (angular == 0)
-  {
-    new_angular = obs_angular_vel_;
-  }
-  else
-  {
-    new_angular = angular;
-  }
+  // if (angular == 0)
+  // {
+  //   new_angular_vel = obs_angular_vel_;
+  // }
+  // else
+  // {
+  //   new_angular_vel = angular;
+  // }
 
   // If Center IR Tripped
   if (ir_sensor_vals_[Pheeno::IR::CENTER] < range_to_avoid)
   {
-    // if (std::abs((ir_sensor_vals_[Pheeno::IR::RIGHT] - ir_sensor_vals_[Pheeno::IR::LEFT])) < 5.0 ||
-    //     (ir_sensor_vals_[Pheeno::IR::RIGHT] > range_to_avoid && ir_sensor_vals_[Pheeno::IR::LEFT] > range_to_avoid))
-    // {
-    //   angular = randomTurn();
-    // }
+    if (std::abs((ir_sensor_vals_[Pheeno::IR::RIGHT] - ir_sensor_vals_[Pheeno::IR::LEFT])) < 5.0 ||
+        (ir_sensor_vals_[Pheeno::IR::RIGHT] > range_to_avoid && ir_sensor_vals_[Pheeno::IR::LEFT] > range_to_avoid))
+    {
+      linear = obs_linear_vel_;
+      angular = randomTurn(obs_angular_vel_);
+    }
 
     if (ir_sensor_vals_[Pheeno::IR::RIGHT] < ir_sensor_vals_[Pheeno::IR::LEFT])
     {
-      linear = obs_linear_vel_;
-      angular = -1.0 * new_angular;  // Turn Left
+      angular = -1.0 * obs_angular_vel_;  // Turn Left
     }
     else
     {
-      linear = obs_linear_vel_;
-      angular = new_angular;  // Turn Right
+      angular = obs_angular_vel_;  // Turn Right
     }
+
+    // Set obstacle flag
+    obs_flag = true;
   }
   // If both CRight AND CLeft IR sensors tripped.
   else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < range_to_avoid && ir_sensor_vals_[Pheeno::IR::CLEFT] < range_to_avoid)
   {
-    linear = obs_linear_vel_;
-    angular = randomTurn(new_angular);
+    angular = randomTurn(obs_angular_vel_);
+    obs_flag = true;
   }
   // If only CRight IR sensor tripped.
   else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < range_to_avoid)
   {
-    linear = obs_linear_vel_;
-    angular = -1.0 * new_angular;  // Turn Left
+    angular = -1.0 * obs_angular_vel_;  // Turn Left
+    obs_flag = true;
   }
   // If only CLeft IR sensor tripped.
   else if (ir_sensor_vals_[Pheeno::IR::CLEFT] < range_to_avoid)
   {
-    linear = obs_linear_vel_;
-    angular = new_angular;  // Turn Right
+    angular = obs_angular_vel_;  // Turn Right
+    obs_flag = true;
   }
   // If only Right IR sensor tripped.
   else if (ir_sensor_vals_[Pheeno::IR::RIGHT] < range_to_avoid)
   {
-    linear = obs_linear_vel_;
-    angular = -1.0 * new_angular;  // Turn Left
+    angular = -1.0 * obs_angular_vel_;  // Turn Left
+    obs_flag = true;
   }
   // If only Left IR sensor tripped.
   else if (ir_sensor_vals_[Pheeno::IR::LEFT] < range_to_avoid)
   {
-    linear = obs_linear_vel_;
-    angular = new_angular;  // Turn Right
+    angular = obs_angular_vel_;  // Turn Right
+    obs_flag = true;
   }
-  else
+
+  if (obs_flag)
   {
-    ROS_INFO("No obstacle to avoid (avoidObstacleMove()).");
-    linear = linear_vel_;
-    angular = 0.0;
+    linear = obs_linear_vel_;  // Set linear to the obstacle avoidance value.
+    ROS_INFO("Obstacle detected: avoidObstacleMove()");
   }
+
+  return obs_flag;
+
 }
 
 /*
@@ -331,67 +395,72 @@ void PheenoRobot::avoidObstacleMove(double& linear, double& angular, double rang
  * the references to linear and angular are set to specific values to make the
  * robot avoid the obstacle.
  */
-void PheenoRobot::avoidObstacleStop(double& linear, double& angular, double range_to_avoid)
+bool PheenoRobot::avoidObstacleStop(double& linear, double& angular, double range_to_avoid)
 {
-  double new_angular;
+  // double new_angular_vel;
+  bool obs_flag = false;
 
-  if (angular == 0)
-  {
-    new_angular = obs_angular_vel_;
-  }
-  else
-  {
-    new_angular = angular;
-  }
+  // if (angular == 0)
+  // {
+  //   new_angular_vel = obs_angular_vel_;
+  // }
+  // else
+  // {
+  //   new_angular_vel = angular;
+  // }
 
   // If Center IR Tripped
   if (ir_sensor_vals_[Pheeno::IR::CENTER] < range_to_avoid)
   {
     if (ir_sensor_vals_[Pheeno::IR::RIGHT] < ir_sensor_vals_[Pheeno::IR::LEFT])
     {
-      linear = 0.0;
-      angular = -1.0 * new_angular; // Turn Left
+      angular = -1.0 * obs_angular_vel_; // Turn Left
     }
     else
     {
-      linear = 0.0;
-      angular = new_angular; // Turn Right
+      angular = obs_angular_vel_; // Turn Right
     }
+
+    // Set obstacle flag
+    obs_flag = true;
   }
   // If both CRight AND CLeft IR sensors tripped.
   else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < range_to_avoid && ir_sensor_vals_[Pheeno::IR::CLEFT] < range_to_avoid)
   {
-    linear = 0.0;
-    angular = randomTurn(new_angular);
+    angular = randomTurn(obs_angular_vel_);
+    obs_flag = true;
   }
   // If only CRight IR sensor tripped.
   else if (ir_sensor_vals_[Pheeno::IR::CRIGHT] < range_to_avoid)
   {
-    linear = 0.0;
-    angular = -1.0 * new_angular; // Turn Left
+    angular = -1.0 * obs_angular_vel_; // Turn Left
+    obs_flag = true;
   }
   // If only CLeft IR sensor tripped.
   else if (ir_sensor_vals_[Pheeno::IR::CLEFT] < range_to_avoid)
   {
-    linear = 0.0;
-    angular = new_angular; // Turn Right
+    angular = obs_angular_vel_; // Turn Right
+    obs_flag = true;
   }
   // If only Right IR sensor tripped.
   else if (ir_sensor_vals_[Pheeno::IR::RIGHT] < range_to_avoid)
   {
-    linear = 0.0;
-    angular = -1.0 * new_angular; // Turn Left
+    angular = -1.0 * obs_angular_vel_; // Turn Left
+    obs_flag = true;
   }
   // If only Left IR sensor tripped.
   else if (ir_sensor_vals_[Pheeno::IR::LEFT] < range_to_avoid)
   {
-    linear = 0.0;
-    angular = new_angular; // Turn Right
+    angular = obs_angular_vel_; // Turn Right
+    obs_flag = true;
   }
-  else
+
+  if (obs_flag)
   {
-    ROS_INFO("No obstacle to avoid (avoidObstacleStop()).");
-    linear = linear_vel_; // Move Straight
-    angular = 0.0;
+    linear = 0.0; // Set Linear to 0.
+    ROS_INFO("Obstacle detected: avoidObstacleStop()");
   }
+
+  return obs_flag;
+
 }

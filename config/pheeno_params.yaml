@@ -1,5 +1,3 @@
-/pheeno_robot/max_range_to_avoid: 20.0
-/pheeno_robot/min_range_to_avoid: 15.0
 /pheeno_robot/default_linear_velocity: 0.08
 /pheeno_robot/default_angular_velocity: 1.2
 /pheeno_robot/obstacle_linear_velocity: 0.5

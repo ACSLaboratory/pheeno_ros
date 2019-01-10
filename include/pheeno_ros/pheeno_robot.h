@@ -66,12 +66,16 @@ public:
 
   // Public Movement Methods
   double randomTurn(double angular);
-  double getLinearVelocity();
-  double getAngularVelocity();
-  void setLinearVelocity(double new_linear_velocity);
-  void setAngularVelocity(double new_angular_velocity);
-  void avoidObstacleMove(double& linear, double& angular, double range_to_avoid);
-  void avoidObstacleStop(double& linear, double& angular, double range_to_avoid);
+  double getDefaultLinearVelocity();
+  double getDefaultAngularVelocity();
+  void setDefaultLinearVelocity(double new_linear_velocity);
+  void setDefaultAngularVelocity(double new_angular_velocity);
+  double getObstacleLinearVelocity();
+  double getObstacleAngularVelocity();
+  void setObstacleLinearVelocity(double new_linear_velocity);
+  void setObstacleAngularVelocity(double new_angular_velocity);
+  bool avoidObstacleMove(double& linear, double& angular, double range_to_avoid);
+  bool avoidObstacleStop(double& linear, double& angular, double range_to_avoid);
 
   // Public Publishers
   void publishCmdVelocity(geometry_msgs::Twist velocity);
@@ -105,8 +109,6 @@ private:
   ros::Publisher pub_cmd_vel_;
 
   // Default values for Pheeno.
-  double max_range_to_avoid_;
-  double min_range_to_avoid_;
   double linear_vel_;
   double angular_vel_;
   double def_linear_vel_;

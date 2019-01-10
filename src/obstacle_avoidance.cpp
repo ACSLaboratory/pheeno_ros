@@ -23,7 +23,6 @@ int main(int argc, char **argv)
     ROS_ERROR("Need to provide Pheeno number!");
   }
 
-
   // Initializing ROS node
   ros::init(argc, argv, "obstacle_avoidance_node");
 
@@ -31,42 +30,35 @@ int main(int argc, char **argv)
   PheenoRobot pheeno = PheenoRobot(pheeno_name);
 
   // ROS Rate loop
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(15);
 
   // Variables before loop
-  double saved_time = ros::Time::now().toSec();
-  double current_duration;
-  double turn_direction = pheeno.randomTurn(0.07);
-  double linear = pheeno.getLinearVelocity();
-  double angular = 0.0;
+  double linear = pheeno.getDefaultLinearVelocity();  // Initial vel is the default one provided by config file.
+  double angular = 0.0;  // No turning.
+  double max_range_to_avoid = 20.0;
+  double min_range_to_avoid = 15.0;
+  bool obs_flag = false;
   geometry_msgs::Twist cmd_vel_msg;
 
   while (ros::ok())
   {
-    // Find current duration of motion.
-    current_duration = ros::Time::now().toSec() - saved_time;
+    // Move and avoid obstacles if they are near.
+    obs_flag = pheeno.avoidObstacleMove(linear, angular, max_range_to_avoid);
+    obs_flag = pheeno.avoidObstacleStop(linear, angular, min_range_to_avoid);
 
-    if (current_duration <= 2.0)
+    // Return values to default after obstacle avoided.
+    if (!obs_flag)
     {
-      pheeno.avoidObstaclesLinear(linear, angular, turn_direction);
-      cmd_vel_msg.linear.x = linear;
-      cmd_vel_msg.angular.z = angular;
+      linear = pheeno.getDefaultLinearVelocity();  // Default velocity
+      angular = 0.0;
     }
-    else if (current_duration < 5.0)
-    {
-      pheeno.avoidObstaclesAngular(angular, turn_direction);
-      cmd_vel_msg.linear.x = linear;
-      cmd_vel_msg.angular.z = angular;
-    }
-    else
-    {
-      // Reset Variables
-      saved_time = ros::Time::now().toSec();
-      turn_direction = pheeno.randomTurn(0.07);
-    }
+
+    // Set values to cmd_vel msg
+    cmd_vel_msg.linear.x = linear;
+    cmd_vel_msg.angular.z = angular;
 
     // Publish, Spin, and Sleep
-    pheeno.publish(cmd_vel_msg);
+    pheeno.publishCmdVelocity(cmd_vel_msg);
     ros::spinOnce();
     loop_rate.sleep();
   }
