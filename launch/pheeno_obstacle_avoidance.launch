@@ -6,7 +6,9 @@
   <group ns="pheeno_55">
     <node pkg="rosserial_python" type="serial_node.py" name="serial_node"
           args="/dev/ttyACM0"/>
-    <node pkg="pheeno_ros" type="obstacle_avoidance.py"
+    <!-- <node pkg="pheeno_ros" type="obstacle_avoidance.py"
+          name="pheeno_obstacle_avoidance" args="-n 55"/> -->
+    <node pkg="pheeno_ros" type="obstacle_avoidance"
           name="pheeno_obstacle_avoidance" args="-n 55"/>
   </group>
 
